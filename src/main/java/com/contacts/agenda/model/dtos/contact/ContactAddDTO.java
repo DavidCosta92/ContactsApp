@@ -16,5 +16,4 @@ public class ContactAddDTO {
     private String name;
     private String phone;
     private AddressEntity address;
-
 }

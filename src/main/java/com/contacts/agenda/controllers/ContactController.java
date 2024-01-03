@@ -1,14 +1,13 @@
 package com.contacts.agenda.controllers;
 
+import com.contacts.agenda.model.dtos.contact.ContactAddDTO;
 import com.contacts.agenda.model.dtos.contact.ContactArrayReadDTO;
+import com.contacts.agenda.model.dtos.contact.ContactReadDTO;
 import com.contacts.agenda.services.ContactService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/contacts/")
@@ -25,6 +24,10 @@ public class ContactController {
                                                        @RequestParam(required = false, defaultValue = "name") String sortBy) {
         return new ResponseEntity<>(contactService.findAll(name, phone, page, size, sortBy), HttpStatus.OK);
     }
+    @PostMapping
+    public ResponseEntity<ContactReadDTO> add(@RequestBody ContactAddDTO contactoAddDTO) {
+        return new ResponseEntity<>(contactService.add(contactoAddDTO), HttpStatus.CREATED);
+    }
 /*
 
 
@@ -33,10 +36,7 @@ public class ContactController {
         return new ResponseEntity<>(contactoService.findById(id), HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<ContactoReadDTO> add(@RequestBody ContactoAddDTO contactoAddDTO) {
-        return new ResponseEntity<>(contactoService.add(contactoAddDTO), HttpStatus.CREATED);
-    }
+
 
     @PostMapping("addMany")
     public ResponseEntity<List<ContactoReadDTO>> addMany(@RequestBody ContactoAddDTO contactoAddDTO[]) {

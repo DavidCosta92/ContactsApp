@@ -1,5 +1,6 @@
 package com.contacts.agenda.services;
 
+import com.contacts.agenda.model.dtos.address.AddressAddDto;
 import com.contacts.agenda.model.dtos.address.AddressReadDTO;
 import com.contacts.agenda.model.dtos.contact.ContactAddDTO;
 import com.contacts.agenda.model.dtos.contact.ContactArrayReadDTO;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ContactService {
@@ -57,6 +59,28 @@ public class ContactService {
                 .sort_by(sortBy)
                 .build();
     }
+    public ContactReadDTO add(ContactAddDTO contactAddDTO){
+
+        //TODO validateContactAddDTO(contactAddDTO); => ESTO LO DEBERIA IMPLEMENTAR CON LAS CLASES QUE ME DA SPRINGBOOT
+        //TODO validateContactAddDTO(contactAddDTO); => ESTO LO DEBERIA IMPLEMENTAR CON LAS CLASES QUE ME DA SPRINGBOOT
+        //TODO validateContactAddDTO(contactAddDTO); => ESTO LO DEBERIA IMPLEMENTAR CON LAS CLASES QUE ME DA SPRINGBOOT
+
+        String street = contactAddDTO.getAddress().getStreet();
+        String number = contactAddDTO.getAddress().getNumber();
+
+        Boolean existAddress = addressService.existAddress(contactAddDTO.getAddress());
+
+        if(!existAddress) addressService.add(new AddressAddDto(street , number));
+        AddressEntity addressEntity = addressService.getAddressEntityByStreetAndNumber(street , number);
+        contactAddDTO.setAddress(addressEntity);
+
+        return Optional
+                .ofNullable(contactAddDTO)
+                .map(dto -> contactMapper.contactAddDTOToEntity(dto))
+                .map(entity -> contactRepository.save(entity))
+                .map(entity -> contactMapper.contactEntityToReadDTO(entity))
+                .orElse(new ContactReadDTO());
+    }
 
     /*
 
@@ -83,9 +107,7 @@ public class ContactService {
     public void validateContactAddDTO(ContactAddDTO contactAddDTO){
 
     }
-    public ContactReadDTO add(ContactAddDTO contactAddDTO){
 
-    }
     public List<ContactReadDTO> addMany(ContactAddDTO contactAddDTO[]){
 
     }

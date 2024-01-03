@@ -1,5 +1,6 @@
 package com.contacts.agenda.model.mappers;
 
+import com.contacts.agenda.model.dtos.contact.ContactAddDTO;
 import com.contacts.agenda.model.dtos.contact.ContactReadDTO;
 import com.contacts.agenda.model.entities.ContactEntity;
 import org.springframework.stereotype.Component;
@@ -21,5 +22,13 @@ public class ContactMapper {
                         .build())
                 .orElseThrow();
                 //.orElse(new ContactReadDTO());
+    }
+
+    public ContactEntity contactAddDTOToEntity(ContactAddDTO dto) {
+        return ContactEntity.builder()
+                            .name(dto.getName())
+                            .phone(dto.getPhone())
+                            .address(dto.getAddress())
+                            .build();
     }
 }
