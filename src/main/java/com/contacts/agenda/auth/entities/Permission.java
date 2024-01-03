@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum Permission {
+    CREATE_CONTACT("CREATE_CONTACT"),
     READ_ALL("READ_ALL"),
     EDIT_ALL("EDIT_ALL"),
     DELETE_ALL("DELETE_ALL");
