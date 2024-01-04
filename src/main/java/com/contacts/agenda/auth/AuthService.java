@@ -39,15 +39,15 @@ public class AuthService {
         return role;
     }
     public AuthResponse register(RegisterRequest registerRequest) {
-        // validations, return value or trows exceptions
-        // String req_username = validator.validateUsername(request.getUsername());
-        // String req_password = validator.validatePassword(request.getPassword());
-        // String req_firstName = validator.validateFirstName(request.getFirstName());
-        // String req_lastName = validator.validateLastName(request.getLastName());
-        // String req_phone = validator.validatePhone(request.getPhone());
-        // String req_dni = validator.validateDni(request.getDni());
-        // String req_email = validator.validateEmail(request.getEmail());
-        // validator.alreadyExistUser(req_username, req_dni , req_email);
+        // TODO validations, return value or trows exceptions
+        // TODO String req_username = validator.validateUsername(request.getUsername());
+        // TODO String req_password = validator.validatePassword(request.getPassword());
+        // TODO String req_firstName = validator.validateFirstName(request.getFirstName());
+        // TODO String req_lastName = validator.validateLastName(request.getLastName());
+        // TODO String req_phone = validator.validatePhone(request.getPhone());
+        // TODO String req_dni = validator.validateDni(request.getDni());
+        // TODO String req_email = validator.validateEmail(request.getEmail());
+        // TODO validator.alreadyExistUser(req_username, req_dni , req_email);
 
         if (! registerRequest.getPassword1().equals(registerRequest.getPassword2())) {
             throw new InvalidValueException("Passwords no coinciden!");

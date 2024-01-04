@@ -21,7 +21,7 @@ public class ContactEntity {
     private String name;
     private String phone;
 
-    @ManyToOne (cascade = {CascadeType.PERSIST})
+    @ManyToOne (cascade = {CascadeType.MERGE}) // {CascadeType.PERSIST})
     @JoinColumn(name = "Addresses_id")
     private AddressEntity address;
 

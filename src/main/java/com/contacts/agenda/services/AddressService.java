@@ -46,4 +46,13 @@ public class AddressService {
 
         return ent.get();
     }
+
+    public AddressEntity getOrCreateAddress(AddressEntity address) {
+        if(existAddress(address)){
+            return getAddressEntityByStreetAndNumber(address.getStreet() , address.getNumber());
+        } else {
+            AddressReadDTO readDTO = add(new AddressAddDto(address.getStreet() , address.getNumber()));
+            return addressMapper.addressReadDtoToEntity(readDTO);
+        }
+    }
 }

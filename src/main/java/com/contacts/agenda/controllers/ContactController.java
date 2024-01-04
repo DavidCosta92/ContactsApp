@@ -52,31 +52,56 @@ public class ContactController {
             @ApiResponse(responseCode = "403", description = "Forbidden, Access Denied",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExceptionMessages.class)) }) })
-    @PostMapping
     @PreAuthorize("hasAuthority('CREATE_CONTACT')")
+    @PostMapping
     public ResponseEntity<ContactReadDTO> add(@RequestBody ContactAddDTO contactoAddDTO) {
         return new ResponseEntity<>(contactService.add(contactoAddDTO), HttpStatus.CREATED);
     }
-/*
-
-
+    @Operation(summary = "Shows contact by ID , requires a valid JWT with READ_ALL permission")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Contact by ID",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ContactReadDTO.class)) }),
+            @ApiResponse(responseCode = "403", description = "Forbidden, Access Denied",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExceptionMessages.class)) }) ,
+            @ApiResponse(responseCode = "404", description = "Not found by ID",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExceptionMessages.class)) })  })
+    @PreAuthorize("hasAuthority('READ_ALL')")
     @GetMapping("{id}")
-    public ResponseEntity<ContactoAddDTO> findById(@PathVariable Integer id) {
-        return new ResponseEntity<>(contactoService.findById(id), HttpStatus.OK);
+    public ResponseEntity<ContactReadDTO> findById(@PathVariable Integer id) {
+        return new ResponseEntity<>(contactService.findById(id), HttpStatus.OK);
+    }
+    @Operation(summary = "Edit contact by ID , requires a valid JWT with EDIT_ALL permission")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "Returns edited contact",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ContactReadDTO.class)) }),
+            @ApiResponse(responseCode = "403", description = "Forbidden, Access Denied",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExceptionMessages.class)) }) ,
+            @ApiResponse(responseCode = "404", description = "Not found by ID",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExceptionMessages.class)) }),
+            @ApiResponse(responseCode = "409", description = "Conflict, Error as result of sending invalid data, Ex: 'Nombre ya existe'",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExceptionMessages.class)) })   })
+    @PreAuthorize("hasAuthority('EDIT_ALL')")
+    @PutMapping("update/{id}")
+    public ResponseEntity<ContactReadDTO> updateById(@PathVariable Integer id,
+                                                     @RequestBody ContactAddDTO contactAddDTO) {
+        return new ResponseEntity<>(contactService.updateById(id, contactAddDTO), HttpStatus.ACCEPTED);
     }
 
 
+/*
 
     @PostMapping("addMany")
     public ResponseEntity<List<ContactoReadDTO>> addMany(@RequestBody ContactoAddDTO contactoAddDTO[]) {
         return new ResponseEntity<>(contactoService.addMany(contactoAddDTO), HttpStatus.CREATED);
     }
 
-    @PutMapping("update/{id}")
-    public ResponseEntity<ContactoAddDTO> updateById(@PathVariable Integer id,
-                                                     @RequestBody ContactoAddDTO contactoAddDTO) {
-        return new ResponseEntity<>(contactoService.updateById(id, contactoAddDTO), HttpStatus.CREATED);
-    }
 
     @DeleteMapping("delete/{id}")
     public ResponseEntity<ContactoReadDTO> deleteById(@PathVariable Integer id) {

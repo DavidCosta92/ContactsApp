@@ -14,4 +14,8 @@ public interface ContactRepository extends JpaRepository <ContactEntity, Integer
     Page<ContactEntity> findAllByPhoneContains (String phone, Pageable pageable);
     @Query (value = "FROM contact c WHERE (:name IS NULL OR c.name LIKE %:name% )")
     Page<ContactEntity> searchByNameLike (String name, Pageable pageable);
+
+    Boolean existsByName(String name);
+    Boolean existsByPhone(String phone);
+
 }

@@ -24,7 +24,7 @@ public enum Role {
             )
     ),
     SUPER_ADMIN(
-            Set.of(
+            Set.of(Permission.CREATE_CONTACT,
             Permission.READ_ALL,
             Permission.EDIT_ALL,
             Permission.DELETE_ALL
