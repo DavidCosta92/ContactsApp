@@ -5,12 +5,14 @@ import com.contacts.agenda.exceptions.ExceptionMessages;
 import com.contacts.agenda.model.dtos.contact.ContactAddDTO;
 import com.contacts.agenda.model.dtos.contact.ContactArrayReadDTO;
 import com.contacts.agenda.model.dtos.contact.ContactReadDTO;
+import com.contacts.agenda.model.dtos.contact.ContactUpdateDTO;
 import com.contacts.agenda.services.ContactService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +37,7 @@ public class ContactController {
     @GetMapping
     @PreAuthorize("hasAuthority('READ_ALL')")
     public ResponseEntity<ContactArrayReadDTO> showAll(@RequestParam(required = false) String name,
-                                                       @RequestParam(required = false) String phone,
+                                                       @RequestParam(required = false) String phone, // TODO VALIDAR QUE ES UN STRING CASTEABLE A INTEGER
                                                        @RequestParam(required = false, defaultValue = "0") Integer page,
                                                        @RequestParam(required = false, defaultValue = "10") Integer size,
                                                        @RequestParam(required = false, defaultValue = "name") String sortBy) {
@@ -54,7 +56,7 @@ public class ContactController {
                             schema = @Schema(implementation = ExceptionMessages.class)) }) })
     @PreAuthorize("hasAuthority('CREATE_CONTACT')")
     @PostMapping
-    public ResponseEntity<ContactReadDTO> add(@RequestBody ContactAddDTO contactoAddDTO) {
+    public ResponseEntity<ContactReadDTO> add (@Valid @RequestBody ContactAddDTO contactoAddDTO) {
         return new ResponseEntity<>(contactService.add(contactoAddDTO), HttpStatus.CREATED);
     }
     @Operation(summary = "Shows contact by ID , requires a valid JWT with READ_ALL permission")
@@ -89,23 +91,20 @@ public class ContactController {
                             schema = @Schema(implementation = ExceptionMessages.class)) })   })
     @PreAuthorize("hasAuthority('EDIT_ALL')")
     @PutMapping("update/{id}")
-    public ResponseEntity<ContactReadDTO> updateById(@PathVariable Integer id,
-                                                     @RequestBody ContactAddDTO contactAddDTO) {
-        return new ResponseEntity<>(contactService.updateById(id, contactAddDTO), HttpStatus.ACCEPTED);
+    public ResponseEntity<ContactReadDTO> updateById(@PathVariable Integer id, @RequestBody ContactUpdateDTO contactUpdateDTO) {
+        return new ResponseEntity<>(contactService.updateById(id, contactUpdateDTO), HttpStatus.ACCEPTED);
     }
 
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<ContactReadDTO> deleteById(@PathVariable Integer id) {
+        return new ResponseEntity<>(contactService.deleteById(id), HttpStatus.OK);
+    }
 
 /*
 
     @PostMapping("addMany")
     public ResponseEntity<List<ContactoReadDTO>> addMany(@RequestBody ContactoAddDTO contactoAddDTO[]) {
         return new ResponseEntity<>(contactoService.addMany(contactoAddDTO), HttpStatus.CREATED);
-    }
-
-
-    @DeleteMapping("delete/{id}")
-    public ResponseEntity<ContactoReadDTO> deleteById(@PathVariable Integer id) {
-        return new ResponseEntity<>(contactoService.deleteById(id), HttpStatus.OK);
     }
 
  */

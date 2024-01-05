@@ -7,6 +7,7 @@ import com.contacts.agenda.model.dtos.address.AddressReadDTO;
 import com.contacts.agenda.model.dtos.contact.ContactAddDTO;
 import com.contacts.agenda.model.dtos.contact.ContactArrayReadDTO;
 import com.contacts.agenda.model.dtos.contact.ContactReadDTO;
+import com.contacts.agenda.model.dtos.contact.ContactUpdateDTO;
 import com.contacts.agenda.model.entities.AddressEntity;
 import com.contacts.agenda.model.entities.ContactEntity;
 import com.contacts.agenda.model.mappers.ContactMapper;
@@ -34,9 +35,24 @@ public class ContactService {
     @Autowired
     AddressService addressService;
 
+    public void validatePhone(String phone){
+        validatePhoneValue(phone);
+        if(contactRepository.existsByPhone(phone)) throw new AlreadyExistException("Telefono ya existente!");
+    }
+    public void validateName(String name){
+        // todo validar si es un string valido
+        if(contactRepository.existsByName(name)) throw new AlreadyExistException("Nombre ya existente!");
+    }
 
-    public ContactArrayReadDTO findAll(String name, String phone, Integer pageNumber, Integer pageSize,
-                                       String sortBy){
+    public void validatePhoneValue(String phone){
+        // todo validar si es un string valido, solo numeros y largo correcto
+        // TODO phone VALIDAR QUE ES UN STRING CASTEABLE A INTEGER y que puede tener un + al principio
+        // TODO phone VALIDAR QUE ES UN STRING CASTEABLE A INTEGER y que puede tener un + al principio
+        // TODO phone VALIDAR QUE ES UN STRING CASTEABLE A INTEGER y que puede tener un + al principio
+    }
+
+    public ContactArrayReadDTO findAll(String name, String phone, Integer pageNumber, Integer pageSize,String sortBy){
+        validatePhoneValue(phone);
         Page<ContactEntity> results;
         Sort sort = Sort.by(sortBy);
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
@@ -46,11 +62,10 @@ public class ContactService {
         } else if (phone != null) {
             results = contactRepository.findAllByPhoneContains(phone, pageable);
         } else if (name != null) {
-            results = contactRepository.searchByNameLike(name, pageable);//.searchByNameLike(name, pageable);
+            results = contactRepository.searchByNameLike(name, pageable);
         } else {
             results = contactRepository.findAll(pageable);
         }
-
         Page pagedResults = results.map(entity -> contactMapper.contactEntityToReadDTO(entity));
 
         return ContactArrayReadDTO.builder()
@@ -63,20 +78,12 @@ public class ContactService {
                 .build();
     }
     public ContactReadDTO add(ContactAddDTO contactAddDTO){
-
-        //TODO validateContactAddDTO(contactAddDTO); => ESTO LO DEBERIA IMPLEMENTAR CON LAS CLASES QUE ME DA SPRINGBOOT
-        //TODO validateContactAddDTO(contactAddDTO); => ESTO LO DEBERIA IMPLEMENTAR CON LAS CLASES QUE ME DA SPRINGBOOT
-        //TODO validateContactAddDTO(contactAddDTO); => ESTO LO DEBERIA IMPLEMENTAR CON LAS CLASES QUE ME DA SPRINGBOOT
-
         String street = contactAddDTO.getAddress().getStreet();
         String number = contactAddDTO.getAddress().getNumber();
-
         Boolean existAddress = addressService.existAddress(contactAddDTO.getAddress());
-
         if(!existAddress) addressService.add(new AddressAddDto(street , number));
         AddressEntity addressEntity = addressService.getAddressEntityByStreetAndNumber(street , number);
         contactAddDTO.setAddress(addressEntity);
-
         return Optional
                 .ofNullable(contactAddDTO)
                 .map(dto -> contactMapper.contactAddDTOToEntity(dto))
@@ -84,7 +91,6 @@ public class ContactService {
                 .map(entity -> contactMapper.contactEntityToReadDTO(entity))
                 .orElse(new ContactReadDTO());
     }
-
     public ContactReadDTO findById(Integer contactId){
         Optional<ContactEntity> contact = contactRepository.findById(contactId);
         if (contact.isEmpty()) {
@@ -92,56 +98,43 @@ public class ContactService {
         }
         return contactMapper.contactEntityToReadDTO(contact.get());
     }
-
     public void existsById(Integer id){
         if(!contactRepository.existsById(id)) throw new NotFoundException("No existe contacto por id");
     }
-    public void validateName(String name){
-        // todo validar si es un string valido
-        if(contactRepository.existsByName(name)) throw new AlreadyExistException("Nombre ya existente!");
-    }
-    public void validatePhone(String phone){
-        // todo validar si es un string valido, solo numeros y largo correcto
-        if(contactRepository.existsByPhone(phone)) throw new AlreadyExistException("Telefono ya existente!");
-    }
-
-
-    public ContactReadDTO updateById(Integer id, ContactAddDTO contactAddDTO){
+    public ContactReadDTO updateById(Integer id, ContactUpdateDTO contactUpdateDTO){
         existsById(id);
         ContactEntity contactEntity = contactRepository.getReferenceById(id);
 
-        String name = contactAddDTO.getName();
+        String name = contactUpdateDTO.getName();
         if (name != null) {
             validateName(name);
             contactEntity.setName(name);
             contactRepository.save(contactEntity);
         }
-        String phone = contactAddDTO.getPhone();
+        String phone = contactUpdateDTO.getPhone();
         if (phone != null) {
             validatePhone(phone);
             contactEntity.setPhone(phone);
             contactRepository.save(contactEntity);
         }
 
-        AddressEntity address = contactAddDTO.getAddress();
+        AddressEntity address = contactUpdateDTO.getAddress();
         if (address != null){
-            AddressEntity newAddress = null;
-            if(address.getStreet() != null && address.getNumber()!= null){
-                newAddress = addressService.getOrCreateAddress(address);
-            } else if (address.getStreet() != null){
+            if (address.getStreet() != null && address.getNumber() == null){
                 address.setNumber(contactEntity.getAddress().getNumber());
-                newAddress = addressService.getOrCreateAddress(address);
-            } else if (address.getNumber() != null){
+            } else if (address.getNumber() != null && address.getStreet() == null){
                 address.setStreet(contactEntity.getAddress().getStreet());
-                newAddress = addressService.getOrCreateAddress(address);
             }
-
+            AddressEntity newAddress = addressService.getOrCreateAddress(address);
             contactEntity.setAddress(newAddress);
             contactRepository.save(contactEntity);
         }
-        // contactRepository.save(contactEntity);
         return contactMapper.contactEntityToReadDTO(contactEntity);
-
+    }
+    public ContactReadDTO deleteById(Integer contactId){
+        ContactReadDTO contactReadDTO = findById(contactId);
+        contactRepository.deleteById(contactId);
+        return contactReadDTO;
     }
     /*
 
@@ -157,9 +150,6 @@ public class ContactService {
     }
     public ContactArrayReadDTO findAllByAddress(AddressEntity address, Integer pageNumber,
                                                 Integer pageSize, String sortBy){
-
-    }
-    public ContactReadDTO deleteById(Integer contactId){
 
     }
     public void validateContactAddDTO(ContactAddDTO contactAddDTO){
