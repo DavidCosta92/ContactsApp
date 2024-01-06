@@ -15,6 +15,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,10 +25,9 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/contacts/")
-//@Slf4j//@Log4j2
-@Log4j2
+@Log4j2 // => generará un registrador para la clase => private static final Logger log = LoggerFactory.getLogger(MiClase.class) y crea variable estática llamada log que ofrece las utilidades del registrado
 public class ContactController {
-
+    // private static final Logger log = LoggerFactory.getLogger(ContactController.class);
     @Autowired
     ContactService contactService;
 
@@ -47,9 +48,9 @@ public class ContactController {
                                                        @RequestParam(required = false, defaultValue = "name") String sortBy) {
         log.trace("Viendo todos los contactos");
         log.debug("Viendo todos los contactos");
-        log.info("Viendo todos los contactos");
-        log.warn("Viendo todos los contactos");
-        log.error("Viendo todos los contactos");
+        log.info(" info Viendo todos los contactos");
+        log.warn(" warn Viendo todos los contactos");
+        log.error(" error Viendo todos los contactos");
         return new ResponseEntity<>(contactService.findAll(name, phone, page, size, sortBy), HttpStatus.OK);
     }
     @Operation(summary = "Creates contact, requires a valid JWT with CREATE_CONTACT permission")
