@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/contacts/")
+//@Slf4j//@Log4j2
+@Log4j2
 public class ContactController {
 
     @Autowired
@@ -41,6 +45,11 @@ public class ContactController {
                                                        @RequestParam(required = false, defaultValue = "0") Integer page,
                                                        @RequestParam(required = false, defaultValue = "10") Integer size,
                                                        @RequestParam(required = false, defaultValue = "name") String sortBy) {
+        log.trace("Viendo todos los contactos");
+        log.debug("Viendo todos los contactos");
+        log.info("Viendo todos los contactos");
+        log.warn("Viendo todos los contactos");
+        log.error("Viendo todos los contactos");
         return new ResponseEntity<>(contactService.findAll(name, phone, page, size, sortBy), HttpStatus.OK);
     }
     @Operation(summary = "Creates contact, requires a valid JWT with CREATE_CONTACT permission")

@@ -28,6 +28,15 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+
+			<!-- para logs, exclusion de logger por defecto spring web y dependencia de log4j2 -->
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+			<!-- para logs, exclusion de logger por defecto spring web y dependencia de log4j2 -->
 		</dependency>
 
 		<dependency>
@@ -107,6 +116,13 @@
 			<version>2.0.1.Final</version>
 		</dependency>
 		<!-- para validaciones con etiquetas -->
+
+		<!-- para logs, exclusion de logger por defecto spring web y dependencia de log4j2 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-log4j2</artifactId>
+		</dependency>
+		<!-- para logs, exclusion de logger por defecto spring web y dependencia de log4j2 -->
 
 	</dependencies>
 
