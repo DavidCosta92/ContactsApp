@@ -2,8 +2,8 @@ package com.contacts.agenda.services;
 
 import com.contacts.agenda.exceptions.customsExceptions.AlreadyExistException;
 import com.contacts.agenda.exceptions.customsExceptions.NotFoundException;
+import com.contacts.agenda.exceptions.customsExceptions.NotFoundInputException;
 import com.contacts.agenda.model.dtos.address.AddressAddDto;
-import com.contacts.agenda.model.dtos.address.AddressReadDTO;
 import com.contacts.agenda.model.dtos.contact.ContactAddDTO;
 import com.contacts.agenda.model.dtos.contact.ContactArrayReadDTO;
 import com.contacts.agenda.model.dtos.contact.ContactReadDTO;
@@ -13,7 +13,6 @@ import com.contacts.agenda.model.entities.ContactEntity;
 import com.contacts.agenda.model.mappers.ContactMapper;
 import com.contacts.agenda.model.repositories.ContactRepository;
 import com.contacts.agenda.utils.Validator;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,17 +35,6 @@ public class ContactService {
     @Autowired
     Validator validator;
 
-    public void validateName(String name){
-        // todo validar si es un string valido
-        if(contactRepository.existsByName(name)) throw new AlreadyExistException("Nombre ya existente!");
-    }
-    public void validPhoneValue(String phone){
-        validator.validPhoneNumber(phone);
-    }
-    public void alreadyExistPhone (String phone){
-        validPhoneValue(phone);
-        if(contactRepository.existsByPhone(phone)) throw new AlreadyExistException("Telefono ya existente!");
-    }
     public ContactArrayReadDTO findAll(String name, String phone, Integer pageNumber, Integer pageSize,String sortBy){
         validPhoneValue(phone);
         Page<ContactEntity> results;
@@ -74,6 +62,7 @@ public class ContactService {
                 .build();
     }
     public ContactReadDTO add(ContactAddDTO contactAddDTO){
+        validateContactAddDTO(contactAddDTO);
         String street = contactAddDTO.getAddress().getStreet();
         String number = contactAddDTO.getAddress().getNumber();
         Boolean existAddress = addressService.existAddress(contactAddDTO.getAddress());
@@ -94,9 +83,6 @@ public class ContactService {
         }
         return contactMapper.contactEntityToReadDTO(contact.get());
     }
-    public void existsById(Integer id){
-        if(!contactRepository.existsById(id)) throw new NotFoundException("No existe contacto por id");
-    }
     public ContactReadDTO updateById(Integer id, ContactUpdateDTO contactUpdateDTO){
         existsById(id);
         ContactEntity contactEntity = contactRepository.getReferenceById(id);
@@ -109,7 +95,7 @@ public class ContactService {
         }
         String phone = contactUpdateDTO.getPhone();
         if (phone != null) {
-            alreadyExistPhone(phone);
+            validatePhone(phone);
             contactEntity.setPhone(phone);
             contactRepository.save(contactEntity);
         }
@@ -135,27 +121,46 @@ public class ContactService {
     public List<ContactReadDTO> addMany(ContactAddDTO contactAddDTOList[]){
         return Arrays.stream(contactAddDTOList).map((contact) -> add(contact)).toList();
     }
+    public void validateContactAddDTO(ContactAddDTO contactAddDTO) {
+        String name = contactAddDTO.getName();
+        String phone = contactAddDTO.getPhone();
+        AddressEntity address = contactAddDTO.getAddress();
+        if (name == null) {
+            throw new NotFoundInputException("Debes revisar el campo NAME");
+        } else if (phone == null) {
+            throw new NotFoundInputException("Debes revisar el campo PHONE");
+        } else if (address == null) {
+            throw new NotFoundInputException("Debes revisar el campo ADDRESS");
+        } else if (address.getNumber() == null) {
+            throw new NotFoundInputException("Debes revisar el campo NUMBER, dentro de ADDRESS");
+        } else if (address.getStreet() == null) {
+            throw new NotFoundInputException("Debes revisar el campo STREET, dentro de ADDRESS");
+        } else {
+            validateName(name);
+            validatePhone(phone);
+        }
+    }
     /*
-
-    public void existsById(Integer id){
-
-    }
-
-    public void existsByPhone(String phone){
-
-    }
     public AddressEntity getAddress(AddressReadDTO addressReadDTO){
 
     }
     public ContactArrayReadDTO findAllByAddress(AddressEntity address, Integer pageNumber,
                                                 Integer pageSize, String sortBy){
-
     }
-    public void validateContactAddDTO(ContactAddDTO contactAddDTO){
-
-    }
-
-
-
      */
+    public void existsById(Integer id){
+        if(!contactRepository.existsById(id)) throw new NotFoundException("No existe contacto por id");
+    }
+    public void validPhoneValue(String phone){
+        validator.validPhoneNumber(phone);
+    }
+    public void validatePhone(String phone){
+        validPhoneValue(phone);
+        if(contactRepository.existsByPhone(phone)) throw new AlreadyExistException("Telefono ya existente!");
+    }
+    public void validateName(String name){
+        validator.stringMinSize("Nombre", 3, name);
+        if(contactRepository.existsByName(name)) throw new AlreadyExistException("Nombre ya existente!");
+    }
+
 }
