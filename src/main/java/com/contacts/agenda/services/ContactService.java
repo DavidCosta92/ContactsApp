@@ -36,14 +36,15 @@ public class ContactService {
     Validator validator;
 
     public ContactArrayReadDTO findAll(String name, String phone, Integer pageNumber, Integer pageSize,String sortBy){
-        validPhoneValue(phone);
         Page<ContactEntity> results;
         Sort sort = Sort.by(sortBy);
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
         if (name != null & phone != null) {
+            validPhoneValue(phone);
             results = contactRepository.findAllByNameContainsAndPhoneContains(name, phone, pageable);
         } else if (phone != null) {
+            validPhoneValue(phone);
             results = contactRepository.findAllByPhoneContains(phone, pageable);
         } else if (name != null) {
             results = contactRepository.searchByNameLike(name, pageable);
