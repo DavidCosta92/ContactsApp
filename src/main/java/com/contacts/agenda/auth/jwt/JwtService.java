@@ -8,6 +8,10 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -21,10 +25,13 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class JwtService {
-    private static final String SECRET_KEY = "bWkga2V5LCBxdWUgZGViZXJpYSBlc3RhciBlbiBlbCBhcHAucHJvcGVydGllcyB5IGx1ZWdvIHNlZXIgaW1wb3J0YWRhIGFxdWk=";
-
-
+    @Autowired
+    private Environment environment;
+    private String getSecretKey() {
+        return environment.getProperty("secret.key");
+    }
     public String getToken(UserDetails user) {
         return getToken(new HashMap<>(), user);
     }
@@ -52,6 +59,7 @@ public class JwtService {
         if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
         }else{
+            log.error("JWT not found");
             throw new InvalidJwtException("JWT not found");
         }
     }
@@ -71,6 +79,7 @@ public class JwtService {
         try{
             return getClaims(token , Claims:: getSubject);
         }catch (Exception e){
+            log.error("Wrong JWT => "+e.getMessage());
             throw new InvalidJwtException("Wrong JWT => "+e.getMessage());
         }
     }
@@ -86,7 +95,7 @@ public class JwtService {
     }
 
     private Key getKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(getSecretKey());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

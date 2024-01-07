@@ -1,17 +1,19 @@
 package com.contacts.agenda;
 
+import com.contacts.agenda.utils.Validator;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
+
+import java.util.regex.Pattern;
+
 @SpringBootApplication
 public class AgendaApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(AgendaApplication.class, args);
-	}
+	public static void main(String[] args) { SpringApplication.run(AgendaApplication.class, args); }
 	@Bean
 	public OpenAPI swaggerDocsConfig (){
 		return new OpenAPI()

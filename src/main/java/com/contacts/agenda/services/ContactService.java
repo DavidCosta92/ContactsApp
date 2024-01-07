@@ -12,6 +12,7 @@ import com.contacts.agenda.model.entities.AddressEntity;
 import com.contacts.agenda.model.entities.ContactEntity;
 import com.contacts.agenda.model.mappers.ContactMapper;
 import com.contacts.agenda.model.repositories.ContactRepository;
+import com.contacts.agenda.utils.Validator;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,39 +21,34 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ContactService {
-
     @Autowired
     ContactRepository contactRepository;
-
     @Autowired
     ContactMapper contactMapper;
-
     @Autowired
     AddressService addressService;
+    @Autowired
+    Validator validator;
 
-    public void validatePhone(String phone){
-        validatePhoneValue(phone);
-        if(contactRepository.existsByPhone(phone)) throw new AlreadyExistException("Telefono ya existente!");
-    }
     public void validateName(String name){
         // todo validar si es un string valido
         if(contactRepository.existsByName(name)) throw new AlreadyExistException("Nombre ya existente!");
     }
-
-    public void validatePhoneValue(String phone){
-        // todo validar si es un string valido, solo numeros y largo correcto
-        // TODO phone VALIDAR QUE ES UN STRING CASTEABLE A INTEGER y que puede tener un + al principio
-        // TODO phone VALIDAR QUE ES UN STRING CASTEABLE A INTEGER y que puede tener un + al principio
-        // TODO phone VALIDAR QUE ES UN STRING CASTEABLE A INTEGER y que puede tener un + al principio
+    public void validPhoneValue(String phone){
+        validator.validPhoneNumber(phone);
     }
-
+    public void alreadyExistPhone (String phone){
+        validPhoneValue(phone);
+        if(contactRepository.existsByPhone(phone)) throw new AlreadyExistException("Telefono ya existente!");
+    }
     public ContactArrayReadDTO findAll(String name, String phone, Integer pageNumber, Integer pageSize,String sortBy){
-        validatePhoneValue(phone);
+        validPhoneValue(phone);
         Page<ContactEntity> results;
         Sort sort = Sort.by(sortBy);
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
@@ -113,7 +109,7 @@ public class ContactService {
         }
         String phone = contactUpdateDTO.getPhone();
         if (phone != null) {
-            validatePhone(phone);
+            alreadyExistPhone(phone);
             contactEntity.setPhone(phone);
             contactRepository.save(contactEntity);
         }
@@ -136,6 +132,9 @@ public class ContactService {
         contactRepository.deleteById(contactId);
         return contactReadDTO;
     }
+    public List<ContactReadDTO> addMany(ContactAddDTO contactAddDTOList[]){
+        return Arrays.stream(contactAddDTOList).map((contact) -> add(contact)).toList();
+    }
     /*
 
     public void existsById(Integer id){
@@ -156,9 +155,7 @@ public class ContactService {
 
     }
 
-    public List<ContactReadDTO> addMany(ContactAddDTO contactAddDTO[]){
 
-    }
 
      */
 }

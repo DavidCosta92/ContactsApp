@@ -7,6 +7,7 @@ import com.contacts.agenda.model.dtos.contact.ContactArrayReadDTO;
 import com.contacts.agenda.model.dtos.contact.ContactReadDTO;
 import com.contacts.agenda.model.dtos.contact.ContactUpdateDTO;
 import com.contacts.agenda.services.ContactService;
+import com.contacts.agenda.utils.Validator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,11 +24,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/contacts/")
-@Log4j2 // => generará un registrador para la clase => private static final Logger log = LoggerFactory.getLogger(MiClase.class) y crea variable estática llamada log que ofrece las utilidades del registrado
+@Log4j2
 public class ContactController {
-    // private static final Logger log = LoggerFactory.getLogger(ContactController.class);
+    /*
+    @Log4j2 // => generará un registrador para la clase => private static final Logger log = LoggerFactory.getLogger(MiClase.class) y crea variable estática llamada log que ofrece las utilidades del registrado
+        log.trace("Viendo todos los contactos");
+        log.debug("Viendo todos los contactos");
+        log.info(" info Viendo todos los contactos");
+        log.warn(" warn Viendo todos los contactos");
+        log.error(" error Viendo todos los contactos");
+     */
     @Autowired
     ContactService contactService;
 
@@ -46,11 +56,6 @@ public class ContactController {
                                                        @RequestParam(required = false, defaultValue = "0") Integer page,
                                                        @RequestParam(required = false, defaultValue = "10") Integer size,
                                                        @RequestParam(required = false, defaultValue = "name") String sortBy) {
-        log.trace("Viendo todos los contactos");
-        log.debug("Viendo todos los contactos");
-        log.info(" info Viendo todos los contactos");
-        log.warn(" warn Viendo todos los contactos");
-        log.error(" error Viendo todos los contactos");
         return new ResponseEntity<>(contactService.findAll(name, phone, page, size, sortBy), HttpStatus.OK);
     }
     @Operation(summary = "Creates contact, requires a valid JWT with CREATE_CONTACT permission")
@@ -68,6 +73,22 @@ public class ContactController {
     @PostMapping
     public ResponseEntity<ContactReadDTO> add (@Valid @RequestBody ContactAddDTO contactoAddDTO) {
         return new ResponseEntity<>(contactService.add(contactoAddDTO), HttpStatus.CREATED);
+    }
+    @Operation(summary = "Creates some contacts, requires a valid JWT with CREATE_CONTACT permission")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ContactReadDTO.class)) }),
+            @ApiResponse(responseCode = "406", description = "Not Acceptable, Error as result of sending invalid data",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExceptionMessages.class)) }),
+            @ApiResponse(responseCode = "403", description = "Forbidden, Access Denied",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExceptionMessages.class)) }) })
+    @PreAuthorize("hasAuthority('CREATE_CONTACT')")
+    @PostMapping("addMany")
+    public ResponseEntity<List<ContactReadDTO>> addMany(@RequestBody ContactAddDTO contactAddDTOList[]) {
+        return new ResponseEntity<>(contactService.addMany(contactAddDTOList), HttpStatus.CREATED);
     }
     @Operation(summary = "Shows contact by ID , requires a valid JWT with READ_ALL permission")
     @ApiResponses(value = {
@@ -100,22 +121,14 @@ public class ContactController {
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExceptionMessages.class)) })   })
     @PreAuthorize("hasAuthority('EDIT_ALL')")
-    @PutMapping("update/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<ContactReadDTO> updateById(@PathVariable Integer id, @RequestBody ContactUpdateDTO contactUpdateDTO) {
         return new ResponseEntity<>(contactService.updateById(id, contactUpdateDTO), HttpStatus.ACCEPTED);
     }
-
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<ContactReadDTO> deleteById(@PathVariable Integer id) {
+        log.info("Contacto eliminado por ID"+id);
         return new ResponseEntity<>(contactService.deleteById(id), HttpStatus.OK);
     }
 
-/*
-
-    @PostMapping("addMany")
-    public ResponseEntity<List<ContactoReadDTO>> addMany(@RequestBody ContactoAddDTO contactoAddDTO[]) {
-        return new ResponseEntity<>(contactoService.addMany(contactoAddDTO), HttpStatus.CREATED);
-    }
-
- */
 }
