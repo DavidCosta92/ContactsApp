@@ -41,7 +41,7 @@ public class ContactController {
     @Autowired
     ContactService contactService;
 
-    @Operation(summary = "Shows all contacts, requires a valid JWT with READ_ALL permission")
+    @Operation(summary = "Shows all contacts, requires a valid JWT with READ_ALL permission or a anonymous user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List with all the contacts",
                     content = { @Content(mediaType = "application/json",
@@ -50,7 +50,7 @@ public class ContactController {
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExceptionMessages.class)) }) })
     @GetMapping
-    @PreAuthorize("hasAuthority('READ_ALL')")
+    @PreAuthorize("hasAuthority('READ_ALL') OR isAnonymous()")
     public ResponseEntity<ContactArrayReadDTO> showAll(@RequestParam(required = false) String name,
                                                        @RequestParam(required = false) String phone, // TODO VALIDAR QUE ES UN STRING CASTEABLE A INTEGER
                                                        @RequestParam(required = false, defaultValue = "0") Integer page,
