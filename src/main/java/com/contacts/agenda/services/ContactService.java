@@ -35,7 +35,7 @@ public class ContactService {
     @Autowired
     Validator validator;
 
-    public ContactArrayReadDTO findAll(String name, String phone, Integer pageNumber, Integer pageSize,String sortBy){
+    public ContactArrayReadDTO findAll(String name, String phone, String street, Integer pageNumber, Integer pageSize,String sortBy){
         Page<ContactEntity> results;
         Sort sort = Sort.by(sortBy);
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
@@ -48,6 +48,8 @@ public class ContactService {
             results = contactRepository.findAllByPhoneContains(phone, pageable);
         } else if (name != null) {
             results = contactRepository.searchByNameLike(name, pageable);
+        }else if (street != null) {
+            results = contactRepository.searchByStreetLike(street, pageable);
         } else {
             results = contactRepository.findAll(pageable);
         }
@@ -64,12 +66,8 @@ public class ContactService {
     }
     public ContactReadDTO add(ContactAddDTO contactAddDTO){
         validateContactAddDTO(contactAddDTO);
-        String street = contactAddDTO.getAddress().getStreet();
-        String number = contactAddDTO.getAddress().getNumber();
-        Boolean existAddress = addressService.existAddress(contactAddDTO.getAddress());
-        if(!existAddress) addressService.add(new AddressAddDto(street , number));
-        AddressEntity addressEntity = addressService.getAddressEntityByStreetAndNumber(street , number);
-        contactAddDTO.setAddress(addressEntity);
+        AddressEntity addressToSet = addressService.getOrCreateAddress(contactAddDTO.getAddress());
+        contactAddDTO.setAddress(addressToSet);
         return Optional
                 .ofNullable(contactAddDTO)
                 .map(dto -> contactMapper.contactAddDTOToEntity(dto))

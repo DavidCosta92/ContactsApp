@@ -53,10 +53,11 @@ public class ContactController {
     @PreAuthorize("hasAuthority('READ_ALL') OR isAnonymous()")
     public ResponseEntity<ContactArrayReadDTO> showAll(@RequestParam(required = false) String name,
                                                        @RequestParam(required = false) String phone, // TODO VALIDAR QUE ES UN STRING CASTEABLE A INTEGER
+                                                       @RequestParam(required = false) String street,
                                                        @RequestParam(required = false, defaultValue = "0") Integer page,
                                                        @RequestParam(required = false, defaultValue = "10") Integer size,
                                                        @RequestParam(required = false, defaultValue = "name") String sortBy) {
-        return new ResponseEntity<>(contactService.findAll(name, phone, page, size, sortBy), HttpStatus.OK);
+        return new ResponseEntity<>(contactService.findAll(name, phone,street, page, size, sortBy), HttpStatus.OK);
     }
     @Operation(summary = "Creates contact, requires a valid JWT with CREATE_CONTACT permission")
     @ApiResponses(value = {
