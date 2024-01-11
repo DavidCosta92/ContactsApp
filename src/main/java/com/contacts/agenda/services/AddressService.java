@@ -9,7 +9,6 @@ import com.contacts.agenda.model.repositories.AddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @Service
@@ -25,9 +24,7 @@ public class AddressService {
     }
 
     public AddressReadDTO add(AddressAddDto addressAddDto) {
-        // TODO VALIDAR ADDRESS A NIVEL DE CONTROLLER CON ANOTACIONES DE SPRING?? O MAS ABAJO?
-        // TODO VALIDAR ADDRESS A NIVEL DE CONTROLLER CON ANOTACIONES DE SPRING?? O MAS ABAJO?
-        // TODO VALIDAR ADDRESS A NIVEL DE CONTROLLER CON ANOTACIONES DE SPRING?? O MAS ABAJO?
+        // TODO VALIDAR ADDRESS A NIVEL DE CONTROLLER CON ANOTACIONES DE SPRING?? O MAS ABAJO? deberia ser a nivel service, para que valide las cosas solicitadas por contactService
         return Optional
                 .ofNullable(addressAddDto)
                 .map(ent -> addressMapper.addressAddDtoToEntity(ent))

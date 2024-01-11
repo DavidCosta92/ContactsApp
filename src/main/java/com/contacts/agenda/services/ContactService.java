@@ -139,14 +139,6 @@ public class ContactService {
             validatePhone(phone);
         }
     }
-    /*
-    public AddressEntity getAddress(AddressReadDTO addressReadDTO){
-
-    }
-    public ContactArrayReadDTO findAllByAddress(AddressEntity address, Integer pageNumber,
-                                                Integer pageSize, String sortBy){
-    }
-     */
     public void existsById(Integer id){
         if(!contactRepository.existsById(id)) throw new NotFoundException("No existe contacto por id");
     }
