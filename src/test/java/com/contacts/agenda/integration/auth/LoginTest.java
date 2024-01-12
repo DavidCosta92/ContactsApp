@@ -13,9 +13,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @SpringBootTest
 @AutoConfigureMockMvc
 public class LoginTest {
-
-    // TODO RUN TEST WITH COVERAGE > 85%
-
     @Autowired
     private MockMvc mockMvc;
 

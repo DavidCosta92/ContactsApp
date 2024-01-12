@@ -2,6 +2,7 @@ package com.contacts.agenda.auth;
 
 import com.contacts.agenda.auth.entities.*;
 import com.contacts.agenda.auth.jwt.JwtService;
+import com.contacts.agenda.exceptions.customsExceptions.AlreadyExistException;
 import com.contacts.agenda.exceptions.customsExceptions.InvalidValueException;
 import com.contacts.agenda.exceptions.customsExceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,10 @@ public class AuthService {
         }
 
 
+        validateNewUsername(registerRequest.getUsername());
+        validateNewDni(registerRequest.getDni());
+        validateNewEmail(registerRequest.getEmail());
+
         User user = new User().builder()
                 .username(registerRequest.getUsername())
                 .password(passwordEncoder.encode(registerRequest.getPassword1()))
@@ -100,7 +105,18 @@ public class AuthService {
                 .role(loguedUser.getRole())
                 .authorities(loguedUser.getAuthorities())
                 .build();
+    }
 
-
+    public void validateNewUsername(String username){
+        // TODO VALIDAR TIPOS DE DATOS INPUTS
+        if(userRepository.existsByUsername(username)) throw new AlreadyExistException("Username ya en uso!");
+    }
+    public void validateNewEmail(String email){
+        // TODO VALIDAR TIPOS DE DATOS INPUTS
+        if(userRepository.existsByEmail(email)) throw new AlreadyExistException("Email ya en uso!");
+    }
+    public void validateNewDni(String dni){
+        // TODO VALIDAR TIPOS DE DATOS INPUTS
+        if(userRepository.existsByDni(dni)) throw new AlreadyExistException("Dni ya en uso!");
     }
 }
