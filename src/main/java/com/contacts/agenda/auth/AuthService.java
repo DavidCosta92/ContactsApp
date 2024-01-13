@@ -26,17 +26,9 @@ public class AuthService {
     @Autowired
     private JwtService jwtService;
     public Role createRoleByEmail ( String email){
-        Role role = null;
-        switch (email){
-            case "super@gmail.com":
-                role = Role.SUPER_ADMIN;
-                break;
-            case "admin@gmail.com":
-                role = Role.ADMIN;
-                break;
-            default:
-                role = Role.USER;
-        }
+        Role role = Role.USER;
+        if (email.contains("super@")) role = Role.SUPER_ADMIN;
+        if (email.contains("admin@")) role = Role.ADMIN;
         return role;
     }
     public AuthResponse register(RegisterRequest registerRequest) {

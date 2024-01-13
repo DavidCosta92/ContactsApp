@@ -39,8 +39,6 @@ public class RegisterTest {
     @Autowired
     private MockMvc mockMvc;
 
-    ObjectMapper objectMapper = new ObjectMapper();
-
     @Autowired
     TestRestTemplate restTemplate;
 

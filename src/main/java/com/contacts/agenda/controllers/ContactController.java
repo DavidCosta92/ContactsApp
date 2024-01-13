@@ -30,14 +30,6 @@ import java.util.List;
 @RequestMapping("/contacts/")
 @Log4j2
 public class ContactController {
-    /*
-    @Log4j2 // => generará un registrador para la clase => private static final Logger log = LoggerFactory.getLogger(MiClase.class) y crea variable estática llamada log que ofrece las utilidades del registrado
-        log.trace("Viendo todos los contactos");
-        log.debug("Viendo todos los contactos");
-        log.info(" info Viendo todos los contactos");
-        log.warn(" warn Viendo todos los contactos");
-        log.error(" error Viendo todos los contactos");
-     */
     @Autowired
     ContactService contactService;
 
@@ -102,7 +94,7 @@ public class ContactController {
             @ApiResponse(responseCode = "404", description = "Not found by ID",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExceptionMessages.class)) })  })
-    @PreAuthorize("hasAuthority('READ_ALL')")
+    @PreAuthorize("hasAuthority('EDIT_ALL')")
     @GetMapping("{id}")
     public ResponseEntity<ContactReadDTO> findById(@PathVariable Integer id) {
         return new ResponseEntity<>(contactService.findById(id), HttpStatus.OK);
