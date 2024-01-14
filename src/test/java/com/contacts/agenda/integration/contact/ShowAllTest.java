@@ -68,9 +68,9 @@ public class ShowAllTest {
     @Rollback(value = true)
     public void showAllTest1() throws Exception {
         // CREAR SUPER USUARIO
-        RegisterRequest newUserData = new RegisterRequest("SUPER","123456789","123456789","david","Costa","35924410","2644647572","super@gmail.com");
-        ResponseEntity<AuthResponse> responseAuth = restTemplate.postForEntity("/auth/register", newUserData,AuthResponse.class);
-        String token = responseAuth.getBody().getToken();
+        RegisterRequest newUserDataAdmin = new RegisterRequest("SUPER","123456789","123456789","david","Costa","35924410","2644647572","super@gmail.com");
+        ResponseEntity<AuthResponse> responseAuthAdmin = restTemplate.postForEntity("/auth/register", newUserDataAdmin,AuthResponse.class);
+        String adminToken = responseAuthAdmin.getBody().getToken();
 
         // CREAR DOS CONTACTOS
         AddressEntity newAddress = addressMapper.addressAddDtoToEntity(new AddressAddDto("rivadavia", "542"));
@@ -78,7 +78,7 @@ public class ShowAllTest {
         ContactAddDTO newContact2 = new ContactAddDTO("david2" , "2644647571", newAddress);
 
         HttpHeaders headersAddContact = new HttpHeaders();
-        headersAddContact.setBearerAuth(token);
+        headersAddContact.setBearerAuth(adminToken);
         HttpEntity<ContactAddDTO> httpEntityAddContact = new HttpEntity<>(newContact, headersAddContact);
         HttpEntity<ContactAddDTO> httpEntityAddContact2 = new HttpEntity<>(newContact2, headersAddContact);
         restTemplate.exchange("/contacts/", HttpMethod.POST , httpEntityAddContact , ContactReadDTO.class);
@@ -95,14 +95,15 @@ public class ShowAllTest {
         assertThat(firstConctactobjectString.contains(newContact.getAddress().getStreet())).isTrue();
     }
 
+
     @DisplayName("Obtener todos los contactos, enviando JWT")
     @Test
     @Rollback
     public void showAllTest2() throws Exception {
         // CREAR SUPER USUARIO
-        RegisterRequest newUserData = new RegisterRequest("SUPER2","123456789","123456789","david2","Costa2","3592442","2644647572","super@gmail2.com");
-        ResponseEntity<AuthResponse> responseAuth = restTemplate.postForEntity("/auth/register", newUserData,AuthResponse.class);
-        String token = responseAuth.getBody().getToken();
+        RegisterRequest newUserDataAdmin = new RegisterRequest("SUPER2","123456789","123456789","david2","Costa2","3592442","2644647572","super@gmail2.com");
+        ResponseEntity<AuthResponse> responseAuthAdmin = restTemplate.postForEntity("/auth/register", newUserDataAdmin,AuthResponse.class);
+        String adminToken = responseAuthAdmin.getBody().getToken();
 
         // CREAR DOS CONTACTOS
         AddressEntity newAddress = addressMapper.addressAddDtoToEntity(new AddressAddDto("rivadavia", "542"));
@@ -110,7 +111,7 @@ public class ShowAllTest {
         ContactAddDTO newContact2 = new ContactAddDTO("david2" , "2644647571", newAddress);
 
         HttpHeaders headersAddContact = new HttpHeaders();
-        headersAddContact.setBearerAuth(token);
+        headersAddContact.setBearerAuth(adminToken);
         HttpEntity<ContactAddDTO> httpEntityAddContact = new HttpEntity<>(newContact, headersAddContact);
         HttpEntity<ContactAddDTO> httpEntityAddContact2 = new HttpEntity<>(newContact2, headersAddContact);
         restTemplate.exchange("/contacts/", HttpMethod.POST , httpEntityAddContact , ContactReadDTO.class);
@@ -118,7 +119,7 @@ public class ShowAllTest {
 
         // PEDIR LISTA CONTACTOS
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
+        headers.setBearerAuth(adminToken);
         HttpEntity<String> httpEntity = new HttpEntity<>(headers);
         ResponseEntity<ContactArrayReadDTO> responseGetAllContacts = restTemplate.exchange("/contacts/", HttpMethod.GET , httpEntity , ContactArrayReadDTO.class);
 
@@ -131,6 +132,53 @@ public class ShowAllTest {
         assertThat(firstConctactobjectString.contains(newContact.getAddress().getStreet())).isTrue();
 
     }
+
+/*
+    @DisplayName("Obtener todos los contactos, enviando JWT sin permisos suficientes")
+    @Test
+    @Rollback
+    public void showAllTest3() throws Exception {
+        // CREAR SUPER USUARIO
+        RegisterRequest newUserDataAdmin = new RegisterRequest("SUPER","123456789","123456789","david","Costa","35924410","2644647572","super@gmail2.com");
+        ResponseEntity<AuthResponse> responseAuthAdmin = restTemplate.postForEntity("/auth/register", newUserDataAdmin,AuthResponse.class);
+        String adminToken = responseAuthAdmin.getBody().getToken();
+        // CREAR DOS CONTACTOS
+        AddressEntity newAddress = addressMapper.addressAddDtoToEntity(new AddressAddDto("rivadavia", "542"));
+        ContactAddDTO newContact = new ContactAddDTO("david1" , "2644647572", newAddress);
+        ContactAddDTO newContact2 = new ContactAddDTO("david2" , "2644647571", newAddress);
+
+        // HACER POST DE CONTACTOS
+        HttpHeaders headersAddContact = new HttpHeaders();
+        headersAddContact.setBearerAuth(adminToken);
+        HttpEntity<ContactAddDTO> httpEntityAddContact = new HttpEntity<>(newContact, headersAddContact);
+        HttpEntity<ContactAddDTO> httpEntityAddContact2 = new HttpEntity<>(newContact2, headersAddContact);
+        restTemplate.exchange("/contacts/", HttpMethod.POST , httpEntityAddContact , ContactReadDTO.class);
+        restTemplate.exchange("/contacts/", HttpMethod.POST , httpEntityAddContact2 , ContactReadDTO.class);
+
+        // CREAR USUARIO CON PERMISOS LIMITADOS
+        RegisterRequest newUserDataRegular = new RegisterRequest("SUPER","123456789","123456789","david","Costa","35924410","2644647572","regularUser@gmail2.com");
+        ResponseEntity<AuthResponse> responseAuthRegularUser = restTemplate.postForEntity("/auth/register", newUserDataRegular,AuthResponse.class);
+        String regularToken = responseAuthRegularUser.getBody().getToken();
+
+
+        // PEDIR LISTA CONTACTOS CON USUARIO REGULAR
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(regularToken);
+        HttpEntity<String> httpEntity = new HttpEntity<>(headers);
+        ResponseEntity<ContactArrayReadDTO> responseGetAllContacts = restTemplate.exchange("/contacts/", HttpMethod.GET , httpEntity , ContactArrayReadDTO.class);
+
+        System.out.println("------------ "+responseGetAllContacts+" ***");
+
+        // VERIFICO LOS VALORES DEVUELTOS
+        assertThat(responseGetAllContacts.getBody().getContacts().size()).isEqualTo(2);
+        String firstConctactobjectString = responseGetAllContacts.getBody().getContacts().get(0).toString();
+        assertThat(firstConctactobjectString.contains(newContact.getName())).isTrue();
+        assertThat(firstConctactobjectString.contains(newContact.getPhone())).isTrue();
+        assertThat(firstConctactobjectString.contains(newContact.getAddress().getNumber())).isTrue();
+        assertThat(firstConctactobjectString.contains(newContact.getAddress().getStreet())).isTrue();
+
+    }
+*/
 
 }
 

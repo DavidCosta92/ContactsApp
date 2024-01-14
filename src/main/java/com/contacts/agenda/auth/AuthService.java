@@ -111,4 +111,9 @@ public class AuthService {
         // TODO VALIDAR TIPOS DE DATOS INPUTS
         if(userRepository.existsByDni(dni)) throw new AlreadyExistException("Dni ya en uso!");
     }
+
+    private String getTokenForTestByEmail(String email){
+
+        return "";
+    }
 }
