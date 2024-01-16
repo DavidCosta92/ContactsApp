@@ -8,6 +8,7 @@ import com.contacts.agenda.model.dtos.address.AddressAddDto;
 import com.contacts.agenda.model.dtos.contact.ContactAddDTO;
 import com.contacts.agenda.model.dtos.contact.ContactReadDTO;
 import com.contacts.agenda.model.mappers.AddressMapper;
+import com.contacts.agenda.services.ContactService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -34,7 +35,6 @@ public class AddContactTest {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> posgres = new PostgreSQLContainer<>("postgres:16.0");
-    // static, para que no levante una nueva por cada test
 
     @Autowired
     TestRestTemplate restTemplate;
@@ -43,7 +43,8 @@ public class AddContactTest {
 
     @Autowired
     private AuthService authService;
-
+    @Autowired
+    private ContactService contactService;
     private RegisterRequest newAdminUserData;
     private String adminToken;
     User admin = User.builder()
@@ -91,7 +92,7 @@ public class AddContactTest {
         }
     }
     public void setUpRegularToken(){
-        // CREAR NUEVO SUPER USER, SINO OBTENER EL QUE YA ESTA EN BD
+        // CREAR NUEVO REGULAR USER, SINO OBTENER EL QUE YA ESTA EN BD
         try {
             authService.validateNewEmail(regular.getEmail());
             newRegularUserData = new RegisterRequest(regular.getUsername(),regular.getPassword(),regular.getPassword(),regular.getFirstName(),regular.getLastName(),regular.getDni(),regular.getPhone(),regular.getEmail());
@@ -102,14 +103,18 @@ public class AddContactTest {
             regularToken = authService.login(loginRequest).getToken();
         }
     }
+
     public ContactAddDTO createContact(String name, String phone, String street, String number){
-        AddressAddDto newAddress = new AddressAddDto("rivadavia", "542");
-        return new ContactAddDTO("david" , "2644647572", addressMapper.addressAddDtoToEntity(newAddress));
+        AddressAddDto newAddress = new AddressAddDto(street, number);
+        return new ContactAddDTO(name , phone, addressMapper.addressAddDtoToEntity(newAddress));
     }
     public HttpEntity<ContactAddDTO> gethttpEntityForPostContact (ContactAddDTO contact, String token){
         HttpHeaders headers = new HttpHeaders();
-        if(token != null) headers.setBearerAuth(token);
+        headers.setBearerAuth(token);
         return new HttpEntity<>(contact, headers);
+    }
+    public HttpEntity<ContactAddDTO> gethttpEntityForPostContact (ContactAddDTO contact){
+        return new HttpEntity<>(contact, new HttpHeaders());
     }
 
 
@@ -142,7 +147,7 @@ public class AddContactTest {
         ContactAddDTO newContact = createContact("david" , "2644647572", "rivadavia", "542");
         ResponseEntity<ExceptionMessages> responseAddContact = restTemplate.exchange(
                 "/contacts/", HttpMethod.POST ,
-                gethttpEntityForPostContact(newContact , null) ,
+                gethttpEntityForPostContact(newContact) ,
                 ExceptionMessages.class
         );
         assertThat(responseAddContact.getStatusCode().is4xxClientError()).isTrue();
@@ -189,15 +194,32 @@ public class AddContactTest {
     }
 
     // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INVALIDA
+    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INVALIDA
+    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INVALIDA
+    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INVALIDA
+    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INVALIDA
+    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INVALIDA
+
+    @DisplayName("Agregar un contacto, con info invalida.")
+    @Test
+    public void addContactTest5() throws Exception {
+        ContactAddDTO newContact = createContact("david" , "2644647572", "rivadavia", "542");
+        ResponseEntity<ExceptionMessages> responseAddContact = restTemplate.exchange(
+                "/contacts/",
+                HttpMethod.POST ,
+                gethttpEntityForPostContact(newContact , regularToken) ,
+                ExceptionMessages.class
+        );
+        assertThat(responseAddContact.getStatusCode().is4xxClientError()).isTrue();
+        assertThat(responseAddContact.getBody().getInternalCode()).isEqualTo(6);
+        assertThat(responseAddContact.getBody().getMessage()).isEqualTo("Access Denied");
+    }
 
     // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INCOMPLETA
+    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INCOMPLETA
+    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INCOMPLETA
+    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INCOMPLETA
+    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INCOMPLETA
 
-
-    // TODO DEBO VER LA FORMA, DE QUE POR DEFECTO, LA APP LEVANTE LA BD DE POSTRGRESQL AL CORRERLA NORMALMENTE, PERO QUE SI LA QUIERO LEVANTAR PARA TESTING, USE DOCKER CON SU IMAGEN CORRESPONDIENTE.. ESTO DEBERIA PONERLO A TRAVEZ DE LA CONSOLA, O ATRAVEZ DEL APPLICATION.PROPERTIES
-
-
-/*
-    java.lang.IllegalStateException: No Docker Compose file found in directory 'D:\Programacion\PERSONAL\JAVA\Contacts App\.'
- */
 
 }

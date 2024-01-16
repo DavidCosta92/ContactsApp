@@ -154,4 +154,8 @@ public class ContactService {
         if(contactRepository.existsByName(name)) throw new AlreadyExistException("Nombre ya existente!");
     }
 
+    public ContactReadDTO findByNameAndPhone(String name , String phone){
+        return  contactMapper.contactEntityToReadDTO(contactRepository.findByNameAndPhone(name , phone));
+    }
+
 }

@@ -20,4 +20,6 @@ public interface ContactRepository extends JpaRepository <ContactEntity, Integer
     Boolean existsByName(String name);
     Boolean existsByPhone(String phone);
 
+    ContactEntity findByNameAndPhone (String name,String phone);
+
 }
