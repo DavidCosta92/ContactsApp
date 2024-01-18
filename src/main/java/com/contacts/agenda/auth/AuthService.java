@@ -3,8 +3,11 @@ package com.contacts.agenda.auth;
 import com.contacts.agenda.auth.entities.*;
 import com.contacts.agenda.auth.jwt.JwtService;
 import com.contacts.agenda.exceptions.customsExceptions.AlreadyExistException;
+import com.contacts.agenda.exceptions.customsExceptions.InvalidJwtException;
 import com.contacts.agenda.exceptions.customsExceptions.InvalidValueException;
 import com.contacts.agenda.exceptions.customsExceptions.NotFoundException;
+import com.contacts.agenda.utils.MailManager;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,7 +18,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
+@Log4j2
 public class AuthService {
     @Autowired
     private UserRepository userRepository;
@@ -25,12 +31,9 @@ public class AuthService {
     PasswordEncoder passwordEncoder;
     @Autowired
     private JwtService jwtService;
-    public Role createRoleByEmail ( String email){
-        Role role = Role.USER;
-        if (email.contains("super@")) role = Role.SUPER_ADMIN;
-        if (email.contains("admin@")) role = Role.ADMIN;
-        return role;
-    }
+    @Autowired
+    private MailManager mailManager;
+
     public AuthResponse register(RegisterRequest registerRequest) {
         // TODO validations, return value or trows exceptions
         // TODO String req_username = validator.validateUsername(request.getUsername());
@@ -61,8 +64,14 @@ public class AuthService {
                 .email(registerRequest.getEmail())
                 .role(createRoleByEmail(registerRequest.getEmail()))
                 .build();
+
+
         userRepository.save(user);
+
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(registerRequest.getUsername() , registerRequest.getPassword1()));
+
+        mailManager.sendEmail(user.getEmail(), "Test servidor backend java", "Hola, GRACIAS POR REGISTRARTE "+user.getUsername()+"!");
+        log.info("NUEVO USUARIO => "+user.getUsername());
 
         return AuthResponse.builder().token(jwtService.getToken(user)).build();
 
@@ -99,6 +108,41 @@ public class AuthService {
                 .build();
     }
 
+
+    // TODO CREAR METODO PARA RESTAURAR PASSWORD!!
+    // TODO CREAR METODO PARA RESTAURAR PASSWORD!!
+    // TODO CREAR METODO PARA RESTAURAR PASSWORD!!
+
+    public String restorePassword(String email){
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isEmpty()) throw new NotFoundException("Email no registrado");
+        String tokenToRestore = jwtService.createTokenForRestorePassword(user.get().getUsername());
+        mailManager.sendEmailToRestorePassword(email , tokenToRestore);
+        System.out.println(">>>>>> token enviado restore = >> " +tokenToRestore+" <<");
+        return "Se envio un email con mas instrucciones";
+    }
+
+    public AuthResponse setNewPassword(RestorePassRequest restorePassRequest){
+        //String token, String password1, String password2
+        if(!restorePassRequest.getPassword1().equals(restorePassRequest.getPassword2())) throw new InvalidValueException("Passwords no coinciden");
+        if (jwtService.isTokenExpired(restorePassRequest.getToken())) throw new InvalidJwtException("Token expirado, vuelve a solicitar envio del token");
+        String username = jwtService.getUsernameFromToken(restorePassRequest.getToken());
+
+        // actualizar password de usuario mediante username
+        /*
+           Optional<User> user = userRepository.findByUsername(username);
+           if(user.isEmpty()) throw new NotFoundException("Usuario no encontrado");
+           user.get().setPassword(password1);
+           userRepository.save(user.get());
+         */
+        System.out.println(">>>>>>>>>>< "+username+">>>>>>>>>>>>>>>>>>");
+        System.out.println(">>>>>>>>>>< "+userRepository.findByUsername(username)+">>>>>>>>>>>>>>>>>>");
+        User user = userRepository.findByUsername(username).get();
+        user.setPassword(passwordEncoder.encode(restorePassRequest.getPassword1()));
+        userRepository.save(user);
+        return login(new LoginRequest(username,restorePassRequest.getPassword1()));
+    }
+
     public void validateNewUsername(String username){
         // TODO VALIDAR TIPOS DE DATOS INPUTS
         if(userRepository.existsByUsername(username)) throw new AlreadyExistException("Username ya en uso!");
@@ -107,13 +151,18 @@ public class AuthService {
         // TODO VALIDAR TIPOS DE DATOS INPUTS
         if(userRepository.existsByEmail(email)) throw new AlreadyExistException("Email ya en uso!");
     }
+    public boolean existByEmail(String email){
+        return userRepository.existsByEmail(email);
+    }
     public void validateNewDni(String dni){
         // TODO VALIDAR TIPOS DE DATOS INPUTS
         if(userRepository.existsByDni(dni)) throw new AlreadyExistException("Dni ya en uso!");
     }
 
-    private String getTokenForTestByEmail(String email){
-
-        return "";
+    public Role createRoleByEmail ( String email){
+        Role role = Role.USER;
+        if (email.contains("super@")) role = Role.SUPER_ADMIN;
+        if (email.contains("admin@")) role = Role.ADMIN;
+        return role;
     }
 }

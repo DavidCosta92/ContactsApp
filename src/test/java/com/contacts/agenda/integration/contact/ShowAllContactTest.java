@@ -152,6 +152,11 @@ public class ShowAllContactTest {
         ResponseEntity<ContactArrayReadDTO> responseGetAllContacts = restTemplate.getForEntity("/contacts/", ContactArrayReadDTO.class);
 
         // VERIFICO LOS VALORES DEVUELTOS
+        assertThat(responseGetAllContacts.getBody().getCurrent_page()).isEqualTo(0);
+        assertThat(responseGetAllContacts.getBody().getPages()).isEqualTo(1);
+        assertThat(responseGetAllContacts.getBody().getSort_by()).isEqualTo("name");
+        assertThat(responseGetAllContacts.getBody().getResults_per_page()).isEqualTo(10);
+        assertThat(responseGetAllContacts.getBody().getTotal_results()).isEqualTo(2);
         assertThat(responseGetAllContacts.getBody().getContacts().size()).isEqualTo(2);
         String firstConctactobjectString = responseGetAllContacts.getBody().getContacts().get(0).toString();
         assertThat(firstConctactobjectString.contains(contactReadDTO1.getName())).isTrue();

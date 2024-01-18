@@ -32,6 +32,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/contacts/").permitAll()
+                        .requestMatchers("auth/restorePassword").permitAll()
+                        .requestMatchers("auth/setNewPassword").permitAll()
                         .requestMatchers("/docs/**").permitAll()
                         .requestMatchers("/api-docs/**").permitAll()
                         .anyRequest().authenticated() )

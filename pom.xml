@@ -181,6 +181,13 @@
 		</dependency>
 		<!-- base datos de testing  -->
 
+		<!-- envio emails  -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		<!-- envio emails  -->
+
 
 	</dependencies>
 

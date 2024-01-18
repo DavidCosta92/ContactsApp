@@ -1,11 +1,14 @@
 package com.contacts.agenda.integration.auth;
 
+import com.contacts.agenda.model.dtos.contact.ContactReadDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -36,7 +39,7 @@ public class LoginTest {
                 .andExpect(MockMvcResultMatchers.content().string("{\"message\":\"Bad credentials\",\"internalCode\":6}"))
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
-    @DisplayName("Login erroneo, con username correctp y password erroneo")
+    @DisplayName("Login erroneo, con username correcto y password erroneo")
     @Test
     public void loginTest3() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
@@ -55,6 +58,7 @@ public class LoginTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.content().string("{\"message\":\"Bad credentials\",\"internalCode\":6}"))
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+
     }
 
 

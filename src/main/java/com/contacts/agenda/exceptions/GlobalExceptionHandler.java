@@ -1,9 +1,6 @@
 package com.contacts.agenda.exceptions;
 
-import com.contacts.agenda.exceptions.customsExceptions.AlreadyExistException;
-import com.contacts.agenda.exceptions.customsExceptions.InvalidJwtException;
-import com.contacts.agenda.exceptions.customsExceptions.InvalidValueException;
-import com.contacts.agenda.exceptions.customsExceptions.NotFoundException;
+import com.contacts.agenda.exceptions.customsExceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -23,6 +20,11 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public ResponseEntity<ExceptionMessages> alreadyExistException (RuntimeException ex){
         return new ResponseEntity<ExceptionMessages>(new ExceptionMessages(ex.getMessage(), InternalExceptionCodes.DUPLICATE_VALUES.ordinal()) , HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(NotFoundInputException.class)
+    @ResponseBody
+    public ResponseEntity<ExceptionMessages> notFoundInputException (RuntimeException ex){
+        return new ResponseEntity<ExceptionMessages>(new ExceptionMessages(ex.getMessage(), InternalExceptionCodes.MISSING_VALUES.ordinal()) , HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ExceptionMessages> notFoundException (RuntimeException ex){

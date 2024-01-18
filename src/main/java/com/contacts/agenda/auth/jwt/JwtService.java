@@ -29,13 +29,23 @@ import java.util.function.Function;
 public class JwtService {
     @Autowired
     private Environment environment;
+
+
+
     private String getSecretKey() {
         return environment.getProperty("secret.key");
     }
     public String getToken(UserDetails user) {
         return getToken(new HashMap<>(), user);
     }
-
+    public String createTokenForRestorePassword(String email){
+        return Jwts.builder()
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000*60*60*24))
+                .setSubject(email)
+                .signWith(getKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
     private String getToken(Map<String, Object> extraClaims, UserDetails user) {
         return Jwts
                 .builder()
@@ -86,14 +96,13 @@ public class JwtService {
     private Date getExpiration(String token){
         return getClaims(token, Claims::getExpiration);
     }
-    private boolean isTokenExpired(String token){
+    public boolean isTokenExpired(String token){
         return getExpiration(token).before(new Date());
     }
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
-
     private Key getKey() {
         byte[] keyBytes = Decoders.BASE64.decode(getSecretKey());
         return Keys.hmacShaKeyFor(keyBytes);

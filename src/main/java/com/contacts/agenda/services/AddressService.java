@@ -1,11 +1,13 @@
 package com.contacts.agenda.services;
 
+import com.contacts.agenda.exceptions.customsExceptions.AlreadyExistException;
 import com.contacts.agenda.exceptions.customsExceptions.NotFoundException;
 import com.contacts.agenda.model.dtos.address.AddressAddDto;
 import com.contacts.agenda.model.dtos.address.AddressReadDTO;
 import com.contacts.agenda.model.entities.AddressEntity;
 import com.contacts.agenda.model.mappers.AddressMapper;
 import com.contacts.agenda.model.repositories.AddressRepository;
+import com.contacts.agenda.utils.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,21 +19,29 @@ public class AddressService {
     AddressMapper addressMapper;
     @Autowired
     AddressRepository addressRepository;
+    @Autowired
+    Validator validator;
 
 
     public Boolean existAddress(AddressEntity address) {
        return addressRepository.findByStreetAndNumber(address.getStreet() , address.getNumber()).isPresent();
     }
-
+    public void validateStreet(String street){
+        validator.stringMinSize("Street", 3, street);
+    }
+    public void validateStreetNumber(String streetNumber){
+        validator.stringMinSize("Street number",2, streetNumber);
+        validator.stringOnlyNumbers("Street number", streetNumber);
+    }
     public AddressReadDTO add(AddressAddDto addressAddDto) {
-        // TODO VALIDAR ADDRESS A NIVEL DE CONTROLLER CON ANOTACIONES DE SPRING?? O MAS ABAJO? deberia ser a nivel service, para que valide las cosas solicitadas por contactService
+        validateStreet(addressAddDto.getStreet());
+        validateStreetNumber(addressAddDto.getNumber());
         return Optional
                 .ofNullable(addressAddDto)
                 .map(ent -> addressMapper.addressAddDtoToEntity(ent))
                 .map(ent -> addressRepository.save(ent))
                 .map(ent -> addressMapper.addressEntityToReadDto(ent))
                 .orElse(new AddressReadDTO());
-
     }
 
 

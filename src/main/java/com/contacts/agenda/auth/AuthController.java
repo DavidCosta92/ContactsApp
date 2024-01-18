@@ -1,9 +1,6 @@
 package com.contacts.agenda.auth;
 
-import com.contacts.agenda.auth.entities.AuthResponse;
-import com.contacts.agenda.auth.entities.LoguedUserDetails;
-import com.contacts.agenda.auth.entities.RegisterRequest;
-import com.contacts.agenda.auth.entities.LoginRequest;
+import com.contacts.agenda.auth.entities.*;
 import com.contacts.agenda.exceptions.ExceptionMessages;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -68,5 +65,14 @@ public class AuthController {
     @GetMapping("/userDetails")
     public ResponseEntity<LoguedUserDetails> getLoguedUserDetails (@RequestHeader HttpHeaders headers){
         return new ResponseEntity<>(authService.getLoguedUserDetails(headers), HttpStatus.OK);
+    }
+
+    @GetMapping("restorePassword")
+    public ResponseEntity<String> restorePassword(@RequestParam String email){
+        return new ResponseEntity<>(authService.restorePassword(email), HttpStatus.ACCEPTED);
+    }
+    @PostMapping("setNewPassword")
+    public ResponseEntity<AuthResponse> setNewPassword(@RequestBody RestorePassRequest restorePassRequest){
+        return new ResponseEntity<>(authService.setNewPassword(restorePassRequest) , HttpStatus.ACCEPTED);
     }
 }

@@ -117,14 +117,12 @@ public class AddContactTest {
         return new HttpEntity<>(contact, new HttpHeaders());
     }
 
-
     @DisplayName("Postgres y docker funcionando")
     @Test
     void conectionStablish (){
         assertThat(posgres.isCreated()).isTrue();
         assertThat(posgres.isRunning()).isTrue();
     }
-
     @DisplayName("Agregar un contacto, con JWT e info Correcta")
     @Test
     public void addContactTest1() throws Exception {
@@ -140,7 +138,6 @@ public class AddContactTest {
         assertThat(responseAddContact.getBody().getAddress().getNumber()).isEqualTo(newContact.getAddress().getNumber());
         assertThat(responseAddContact.getBody().getAddress().getStreet()).isEqualTo(newContact.getAddress().getStreet());
     }
-
     @DisplayName("Agregar un contacto, sin JWT.")
     @Test
     public void addContactTest2() throws Exception {
@@ -154,7 +151,6 @@ public class AddContactTest {
         assertThat(responseAddContact.getBody().getInternalCode()).isEqualTo(6);
         assertThat(responseAddContact.getBody().getMessage()).isEqualTo("Access Denied");
     }
-
     @DisplayName("Agregar un contacto, con JWT pero permisos insuficientes")
     @Test
     public void addContactTest3() throws Exception {
@@ -169,7 +165,6 @@ public class AddContactTest {
         assertThat(responseAddContact.getBody().getInternalCode()).isEqualTo(6);
         assertThat(responseAddContact.getBody().getMessage()).isEqualTo("Access Denied");
     }
-
     @DisplayName("Agregar un contacto con informacion duplicada, con JWT correcto")
     @Test
     public void addContactTest4() throws Exception {
@@ -192,34 +187,134 @@ public class AddContactTest {
 
         assertThat(responseAddContactDuplicated.getStatusCode().isSameCodeAs(HttpStatus.CONFLICT)).isTrue();
     }
-
-    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INVALIDA
-    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INVALIDA
-    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INVALIDA
-    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INVALIDA
-    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INVALIDA
-    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INVALIDA
-
-    @DisplayName("Agregar un contacto, con info invalida.")
+    @DisplayName("Agregar un contacto, con telefono invalido")
     @Test
     public void addContactTest5() throws Exception {
-        ContactAddDTO newContact = createContact("david" , "2644647572", "rivadavia", "542");
+        // telefono con pocos caracteres
+        ContactAddDTO newContact = createContact("david2" , "26446", "rivadavia", "542");
         ResponseEntity<ExceptionMessages> responseAddContact = restTemplate.exchange(
                 "/contacts/",
                 HttpMethod.POST ,
-                gethttpEntityForPostContact(newContact , regularToken) ,
+                gethttpEntityForPostContact(newContact , adminToken) ,
                 ExceptionMessages.class
         );
-        assertThat(responseAddContact.getStatusCode().is4xxClientError()).isTrue();
-        assertThat(responseAddContact.getBody().getInternalCode()).isEqualTo(6);
-        assertThat(responseAddContact.getBody().getMessage()).isEqualTo("Access Denied");
+        assertThat(responseAddContact.getStatusCode().isSameCodeAs(HttpStatus.BAD_REQUEST)).isTrue();
+        assertThat(responseAddContact.getBody().getInternalCode()).isEqualTo(1);
+
+        // telefono con caracteres INVALIDOS
+        ContactAddDTO newContact2 = createContact("david2" , "2644647572a", "rivadavia", "542");
+        ResponseEntity<ExceptionMessages> responseAddContact2 = restTemplate.exchange(
+                "/contacts/",
+                HttpMethod.POST ,
+                gethttpEntityForPostContact(newContact2 , adminToken) ,
+                ExceptionMessages.class
+        );
+        assertThat(responseAddContact2.getStatusCode().isSameCodeAs(HttpStatus.NOT_ACCEPTABLE)).isTrue();
+
+        // telefono ya existente , crear un contacto, intentar enviar uno con el mismo numero de telefono
+        ContactAddDTO newContact3 = createContact("david2" , "2644647572", "rivadavia", "542");
+        ResponseEntity<ExceptionMessages> responseAddContact3 = restTemplate.exchange(
+                "/contacts/",
+                HttpMethod.POST ,
+                gethttpEntityForPostContact(newContact3 , adminToken) ,
+                ExceptionMessages.class
+        );
+        ContactAddDTO newContact4 = createContact("david1" , "2644647572", "rivadavia", "542");
+        ResponseEntity<ExceptionMessages> responseAddContact4 = restTemplate.exchange(
+                "/contacts/",
+                HttpMethod.POST ,
+                gethttpEntityForPostContact(newContact4 , adminToken) ,
+                ExceptionMessages.class
+        );
+        assertThat(responseAddContact4.getStatusCode().isSameCodeAs(HttpStatus.CONFLICT)).isTrue();
+        assertThat(responseAddContact4.getBody().getInternalCode()).isEqualTo(2);
     }
+    @DisplayName("Agregar un contacto, con nombre invalido.")
+    @Test
+    public void addContactTest6() throws Exception {
+        // nombre con pocos caracteres
+        ContactAddDTO newContact = createContact("a" , "2644647572", "rivadavia", "542");
+        ResponseEntity<ExceptionMessages> responseAddContact = restTemplate.exchange(
+                "/contacts/",
+                HttpMethod.POST ,
+                gethttpEntityForPostContact(newContact , adminToken) ,
+                ExceptionMessages.class
+        );
+        assertThat(responseAddContact.getStatusCode().isSameCodeAs(HttpStatus.BAD_REQUEST)).isTrue();
+        assertThat(responseAddContact.getBody().getInternalCode()).isEqualTo(1);
 
-    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INCOMPLETA
-    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INCOMPLETA
-    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INCOMPLETA
-    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INCOMPLETA
-    // TODO CASO DE PRUEBA: AGREGAR CONTANCTO CON INFO INCOMPLETA
+        // nombre ya existente , crear un contacto, intentar enviar uno con el mismo numero de nombre
+        ContactAddDTO newContact2 = createContact("david" , "2644647572", "rivadavia", "542");
+        restTemplate.exchange(
+                "/contacts/",
+                HttpMethod.POST ,
+                gethttpEntityForPostContact(newContact2 , adminToken) ,
+                ExceptionMessages.class
+        );
+        ContactAddDTO newContact3 = createContact("david" , "2644647571", "rivadavia", "542");
+        ResponseEntity<ExceptionMessages> responseAddContact2 = restTemplate.exchange(
+                "/contacts/",
+                HttpMethod.POST ,
+                gethttpEntityForPostContact(newContact3 , adminToken) ,
+                ExceptionMessages.class
+        );
+        assertThat(responseAddContact2.getStatusCode().isSameCodeAs(HttpStatus.CONFLICT)).isTrue();
+        assertThat(responseAddContact2.getBody().getInternalCode()).isEqualTo(2);
 
+    }
+    @DisplayName("Agregar un contacto, con calle invalida.")
+    @Test
+    public void addContactTest7() throws Exception {
+        // calle con pocos caracteres
+        ContactAddDTO newContact = createContact("david1" , "2644647570", "A", "542");
+        ResponseEntity<ExceptionMessages> responseAddContact = restTemplate.exchange(
+                "/contacts/",
+                HttpMethod.POST ,
+                gethttpEntityForPostContact(newContact , adminToken) ,
+                ExceptionMessages.class
+        );
+        assertThat(responseAddContact.getStatusCode().isSameCodeAs(HttpStatus.NOT_ACCEPTABLE)).isTrue();
+        assertThat(responseAddContact.getBody().getInternalCode()).isEqualTo(1);
+    }
+    @DisplayName("Agregar un contacto, con numero de calle invalido.")
+    @Test
+    public void addContactTest8() throws Exception {
+        // Numero de calle con pocos caracteres
+        ContactAddDTO newContact = createContact("david1" , "2644647570", "correa", "1");
+        ResponseEntity<ExceptionMessages> responseAddContact = restTemplate.exchange(
+                "/contacts/",
+                HttpMethod.POST ,
+                gethttpEntityForPostContact(newContact , adminToken) ,
+                ExceptionMessages.class
+        );
+        assertThat(responseAddContact.getStatusCode().isSameCodeAs(HttpStatus.NOT_ACCEPTABLE)).isTrue();
+        assertThat(responseAddContact.getBody().getInternalCode()).isEqualTo(1);
+        assertThat(responseAddContact.getBody().getMessage()).asString().contains("debe tener al menos 2 caracteres");
+
+        // Numero de calle con letras
+        ContactAddDTO newContact2 = createContact("david1" , "2644647570", "correa", "aasd");
+        ResponseEntity<ExceptionMessages> responseAddContact2 = restTemplate.exchange(
+                "/contacts/",
+                HttpMethod.POST ,
+                gethttpEntityForPostContact(newContact2 , adminToken) ,
+                ExceptionMessages.class
+        );
+        assertThat(responseAddContact2.getStatusCode().isSameCodeAs(HttpStatus.NOT_ACCEPTABLE)).isTrue();
+        assertThat(responseAddContact2.getBody().getInternalCode()).isEqualTo(1);
+        assertThat(responseAddContact2.getBody().getMessage()).asString().contains("solo puede contener numeros");
+
+
+        // Numero de calle con letras y numeros
+        ContactAddDTO newContact3 = createContact("david1" , "2644647570", "correa", "a123");
+        ResponseEntity<ExceptionMessages> responseAddContact3 = restTemplate.exchange(
+                "/contacts/",
+                HttpMethod.POST ,
+                gethttpEntityForPostContact(newContact3 , adminToken) ,
+                ExceptionMessages.class
+        );
+        assertThat(responseAddContact3.getStatusCode().isSameCodeAs(HttpStatus.NOT_ACCEPTABLE)).isTrue();
+        assertThat(responseAddContact3.getBody().getInternalCode()).isEqualTo(1);
+        assertThat(responseAddContact3.getBody().getMessage()).asString().contains("solo puede contener numeros");
+    }
 
 }
