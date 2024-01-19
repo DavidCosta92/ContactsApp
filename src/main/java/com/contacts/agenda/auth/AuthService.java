@@ -123,20 +123,9 @@ public class AuthService {
     }
 
     public AuthResponse setNewPassword(RestorePassRequest restorePassRequest){
-        //String token, String password1, String password2
         if(!restorePassRequest.getPassword1().equals(restorePassRequest.getPassword2())) throw new InvalidValueException("Passwords no coinciden");
         if (jwtService.isTokenExpired(restorePassRequest.getToken())) throw new InvalidJwtException("Token expirado, vuelve a solicitar envio del token");
         String username = jwtService.getUsernameFromToken(restorePassRequest.getToken());
-
-        // actualizar password de usuario mediante username
-        /*
-           Optional<User> user = userRepository.findByUsername(username);
-           if(user.isEmpty()) throw new NotFoundException("Usuario no encontrado");
-           user.get().setPassword(password1);
-           userRepository.save(user.get());
-         */
-        System.out.println(">>>>>>>>>>< "+username+">>>>>>>>>>>>>>>>>>");
-        System.out.println(">>>>>>>>>>< "+userRepository.findByUsername(username)+">>>>>>>>>>>>>>>>>>");
         User user = userRepository.findByUsername(username).get();
         user.setPassword(passwordEncoder.encode(restorePassRequest.getPassword1()));
         userRepository.save(user);
