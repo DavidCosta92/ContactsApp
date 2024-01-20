@@ -1,6 +1,5 @@
 package com.contacts.agenda.utils;
 
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,43 +35,18 @@ public class MailManager {
     }
 
     public void sendEmailToRestorePassword(String email, String token) {
-        // TODO CREAR SISTEMA PARA RESTAURAR PASSWORD MEDIANTE
-        /*
+        // TODO Solo para testing. SE ENVIA TOKEN PARA LUEGO HACER POST CON PASSWORD, Sin embargo, esto deberia estar siendo recibido por email, con un link a un front que obtenga passwords y haga post a el ednpoint enviando el token.
         String template = """
-                <form method=POST action= "http://localhost:8080/auth/setNewPassword">
-                  <div class="mb-3">
-                    <label for="password1" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password1">
-                  </div>
-                  <div class="mb-3">
-                    <label for="password2" class="form-label">Confirmar password</label>
-                    <input type="password" class="form-control" id="password2">
-                  </div>
-                  <div>
-                    <input hidden type="password" class="form-control" id="token" value= """;
-        template.concat(token).concat("""
-                  >
-                  </div>
-                  <button type="submit" class="btn btn-primary">Restarurar contraseña</button>
-                </form>
-                """);
-
-         */
-        String template = """
-                <form method=POST action= "http://localhost:8080/auth/setNewPassword">
-                  <div class="mb-3">
-                    <label for="password1" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password1">
-                  </div>
-                  <div class="mb-3">
-                    <label for="password2" class="form-label">Confirmar password</label>
-                    <input type="password" class="form-control" id="password2">
-                  </div>
-                  <div>
-                    <input type="hidden" class="form-control" id="token" value="%s" >
-                  </div>
-                  <button type="submit" class="btn btn-primary">Restarurar contraseña</button>
-                </form>
+                <div style="color:#000000; background-color: #e9f2ff; border:1px solid #b1e1ff; border-radius:10px; padding: 10px; text-align: center;">                    
+                     <h3>ESTE ES EL TOKEN PARA RESTAURAR TU CONTRASEÑA</h3> 
+                    <div style="color:#ffffff; background-color:#664d03; border: 1px solid #ffffff; border-radius:5px; padding: 10px; margin: 30px; font-weight: 900;">
+                        <h3>%s</h3>   
+                    </div>                         
+                    <div style="color:#ffffff; background-color: #ff3d4e; border: 1px solid #ffffff; padding: 10px; font-weight: 600;">
+                         <h3>Solo para testing. SE ENVIA TOKEN PARA LUEGO HACER POST CON PASSWORD, Sin embargo, esto deberia estar siendo recibido por email, con un link a un front que obtenga passwords y haga post a el ednpoint enviando el token.</h3>     
+                        </div>     
+                     <p>Es valido solo por 24hs.</p>      
+                </div>
                 """.formatted(token);
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
@@ -86,26 +60,5 @@ public class MailManager {
             log.info("Email enviando a => "+email);
             throw new RuntimeException("ERROR ENVIANDO EMAIL");
         }
-    }
-    public void sendEmailTemplate(String email, String token) {
-        // TODO CREAR TEMPLATE PARA ENVIAR EMAILS BONITOS
-        // TODO CREAR TEMPLATE PARA ENVIAR EMAILS BONITOS
-        // TODO CREAR TEMPLATE PARA ENVIAR EMAILS BONITOS
-        // TODO CREAR TEMPLATE PARA ENVIAR EMAILS BONITOS
-        /*
-        try {
-            MimeMessage message = javaMailSender.createMimeMessage();
-            message.setSubject(subject);
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(message , true);
-            mimeMessageHelper.setTo(email);
-            mimeMessageHelper.setText(msg);
-            mimeMessageHelper.setFrom(sender);
-            javaMailSender.send(message);
-        } catch (Exception e){
-            log.info("Email enviando a => "+email);
-            throw new RuntimeException("ERROR ENVIANDO EMAIL");
-        }
-
-         */
     }
 }
