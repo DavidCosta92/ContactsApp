@@ -37,22 +37,49 @@ public class MailManager {
 
     public void sendEmailToRestorePassword(String email, String token) {
         // TODO CREAR SISTEMA PARA RESTAURAR PASSWORD MEDIANTE
+        /*
+        String template = """
+                <form method=POST action= "http://localhost:8080/auth/setNewPassword">
+                  <div class="mb-3">
+                    <label for="password1" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password1">
+                  </div>
+                  <div class="mb-3">
+                    <label for="password2" class="form-label">Confirmar password</label>
+                    <input type="password" class="form-control" id="password2">
+                  </div>
+                  <div>
+                    <input hidden type="password" class="form-control" id="token" value= """;
+        template.concat(token).concat("""
+                  >
+                  </div>
+                  <button type="submit" class="btn btn-primary">Restarurar contraseña</button>
+                </form>
+                """);
 
+         */
+        String template = """
+                <form method=POST action= "http://localhost:8080/auth/setNewPassword">
+                  <div class="mb-3">
+                    <label for="password1" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password1">
+                  </div>
+                  <div class="mb-3">
+                    <label for="password2" class="form-label">Confirmar password</label>
+                    <input type="password" class="form-control" id="password2">
+                  </div>
+                  <div>
+                    <input type="hidden" class="form-control" id="token" value="%s" >
+                  </div>
+                  <button type="submit" class="btn btn-primary">Restarurar contraseña</button>
+                </form>
+                """.formatted(token);
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             message.setSubject("Restauracion de password");
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(message , true);
             mimeMessageHelper.setTo(email);
-
-            // TODO CREAR PLANTILLA BONITA CON FORM PARA RESTAURAR PASSWORD, PODRIA DENTRO DEL EMAIL HACER UN FORM, CON LOS CAMPOS DE PASSWORD Y EL BTN DE ENVIAR AL ENDPOINT DIRECTAMENTE.. DE ESTA FORMA PODRIA HACER EL POST DESDE EL NAVEGADOR DENTRO DE LA MISMA APP DE EMAIL
-
-            // TODO CREAR PLANTILLA BONITA CON FORM PARA RESTAURAR PASSWORD, PODRIA DENTRO DEL EMAIL HACER UN FORM, CON LOS CAMPOS DE PASSWORD Y EL BTN DE ENVIAR AL ENDPOINT DIRECTAMENTE.. DE ESTA FORMA PODRIA HACER EL POST DESDE EL NAVEGADOR DENTRO DE LA MISMA APP DE EMAIL
-
-            // TODO CREAR PLANTILLA BONITA CON FORM PARA RESTAURAR PASSWORD, PODRIA DENTRO DEL EMAIL HACER UN FORM, CON LOS CAMPOS DE PASSWORD Y EL BTN DE ENVIAR AL ENDPOINT DIRECTAMENTE.. DE ESTA FORMA PODRIA HACER EL POST DESDE EL NAVEGADOR DENTRO DE LA MISMA APP DE EMAIL
-
-            // TODO CREAR PLANTILLA BONITA CON FORM PARA RESTAURAR PASSWORD, PODRIA DENTRO DEL EMAIL HACER UN FORM, CON LOS CAMPOS DE PASSWORD Y EL BTN DE ENVIAR AL ENDPOINT DIRECTAMENTE.. DE ESTA FORMA PODRIA HACER EL POST DESDE EL NAVEGADOR DENTRO DE LA MISMA APP DE EMAIL
-
-            mimeMessageHelper.setText("ESTE ES EL TOKEN =>> "+token + " <<");
+            mimeMessageHelper.setText(template, true);
             mimeMessageHelper.setFrom(sender);
             javaMailSender.send(message);
         } catch (Exception e){

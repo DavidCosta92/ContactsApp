@@ -73,6 +73,7 @@ public class AuthController {
     }
     @PostMapping("setNewPassword")
     public ResponseEntity<AuthResponse> setNewPassword(@RequestBody RestorePassRequest restorePassRequest){
+
         return new ResponseEntity<>(authService.setNewPassword(restorePassRequest) , HttpStatus.ACCEPTED);
     }
 }
