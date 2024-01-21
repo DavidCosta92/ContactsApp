@@ -1,5 +1,7 @@
 package com.contacts.agenda.auth.entities;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +12,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RestorePassRequest {
+    @NotNull(message = "Token no puede ser nulo")
     String token;
+
+    @NotNull(message = "Password no puede ser nulo")
+    @Size(min=2, max=30, message = "Password debe tener entre 2 y 30 caracteres")
     String password1;
+
+    @NotNull(message = "Password no puede ser nulo")
+    @Size(min=2, max=30, message = "Password debe tener entre 2 y 30 caracteres")
     String password2;
 }

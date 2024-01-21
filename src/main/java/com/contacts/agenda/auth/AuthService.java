@@ -7,6 +7,7 @@ import com.contacts.agenda.exceptions.customsExceptions.InvalidJwtException;
 import com.contacts.agenda.exceptions.customsExceptions.InvalidValueException;
 import com.contacts.agenda.exceptions.customsExceptions.NotFoundException;
 import com.contacts.agenda.utils.MailManager;
+import com.contacts.agenda.utils.Validator;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -33,23 +34,13 @@ public class AuthService {
     private JwtService jwtService;
     @Autowired
     private MailManager mailManager;
+    @Autowired
+    private Validator validator;
 
     public AuthResponse register(RegisterRequest registerRequest) {
-        // TODO validations, return value or trows exceptions
-        // TODO String req_username = validator.validateUsername(request.getUsername());
-        // TODO String req_password = validator.validatePassword(request.getPassword());
-        // TODO String req_firstName = validator.validateFirstName(request.getFirstName());
-        // TODO String req_lastName = validator.validateLastName(request.getLastName());
-        // TODO String req_phone = validator.validatePhone(request.getPhone());
-        // TODO String req_dni = validator.validateDni(request.getDni());
-        // TODO String req_email = validator.validateEmail(request.getEmail());
-        // TODO validator.alreadyExistUser(req_username, req_dni , req_email);
-
         if (! registerRequest.getPassword1().equals(registerRequest.getPassword2())) {
             throw new InvalidValueException("Passwords no coinciden!");
         }
-
-
         validateNewUsername(registerRequest.getUsername());
         validateNewDni(registerRequest.getDni());
         validateNewEmail(registerRequest.getEmail());
@@ -108,44 +99,40 @@ public class AuthService {
                 .build();
     }
 
-
-    // TODO CREAR METODO PARA RESTAURAR PASSWORD!!
-    // TODO CREAR METODO PARA RESTAURAR PASSWORD!!
-    // TODO CREAR METODO PARA RESTAURAR PASSWORD!!
-
     public String restorePassword(String email){
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isEmpty()) throw new NotFoundException("Email no registrado");
         String tokenToRestore = jwtService.createTokenForRestorePassword(user.get().getUsername());
         mailManager.sendEmailToRestorePassword(email , tokenToRestore);
-        System.out.println(">>>>>> token enviado restore = >> " +tokenToRestore+" <<");
+        log.warn(">> token enviado para restaurar cuenta: "+email+", token: " +tokenToRestore+" <<");
         return "Se envio un email con mas instrucciones";
     }
 
     public AuthResponse setNewPassword(RestorePassRequest restorePassRequest){
         if(!restorePassRequest.getPassword1().equals(restorePassRequest.getPassword2())) throw new InvalidValueException("Passwords no coinciden");
         if (jwtService.isTokenExpired(restorePassRequest.getToken())) throw new InvalidJwtException("Token expirado, vuelve a solicitar envio del token");
+
         String username = jwtService.getUsernameFromToken(restorePassRequest.getToken());
         User user = userRepository.findByUsername(username).get();
-        user.setPassword(passwordEncoder.encode(restorePassRequest.getPassword1()));
+
+        user.setPassword(passwordEncoder.encode(validator.stringMinSize("Password",5, restorePassRequest.getPassword1())));
         userRepository.save(user);
         return login(new LoginRequest(username,restorePassRequest.getPassword1()));
     }
 
     public void validateNewUsername(String username){
-        // TODO VALIDAR TIPOS DE DATOS INPUTS
-        if(userRepository.existsByUsername(username)) throw new AlreadyExistException("Username ya en uso!");
+        if(userRepository.existsByUsername(validator.stringOnlyLettersAndNumbers("Username", username))) throw new AlreadyExistException("Username ya en uso!");
     }
     public void validateNewEmail(String email){
-        // TODO VALIDAR TIPOS DE DATOS INPUTS
+        // TODO VALIDAR TIPOS DE DATOS INPUTS email
         if(userRepository.existsByEmail(email)) throw new AlreadyExistException("Email ya en uso!");
     }
     public boolean existByEmail(String email){
         return userRepository.existsByEmail(email);
     }
     public void validateNewDni(String dni){
-        // TODO VALIDAR TIPOS DE DATOS INPUTS
-        if(userRepository.existsByDni(dni)) throw new AlreadyExistException("Dni ya en uso!");
+        validator.stringMinSize("Dni",8, dni);
+        if(userRepository.existsByDni(validator.stringOnlyNumbers("Dni" , dni))) throw new AlreadyExistException("Dni ya en uso!");
     }
 
     public Role createRoleByEmail ( String email){

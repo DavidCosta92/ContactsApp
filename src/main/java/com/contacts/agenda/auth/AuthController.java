@@ -7,7 +7,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import lombok.NonNull;
+import jakarta.validation.Valid;
+
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
 
 @RestController
 @RequestMapping("/auth/")
@@ -38,7 +40,7 @@ public class AuthController {
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExceptionMessages.class)) }) })
     @PostMapping("register")
-    public ResponseEntity<AuthResponse> register (@RequestBody RegisterRequest registerRequest){
+    public ResponseEntity<AuthResponse> register (@Valid @RequestBody RegisterRequest registerRequest){
         return new ResponseEntity<>(authService.register(registerRequest), HttpStatus.CREATED);
     }
 
@@ -51,7 +53,7 @@ public class AuthController {
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ExceptionMessages.class)) }) })
     @PostMapping("login")
-    public ResponseEntity<AuthResponse> login (@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<AuthResponse> login (@Valid @RequestBody LoginRequest loginRequest){
         return new ResponseEntity<>(authService.login(loginRequest), HttpStatus.OK);
     }
 
@@ -81,7 +83,7 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "ESTE ERROR ESTA PENDIENTE DE DARLE OTRO MANEJO!!! NO ESTA BIEN EL CODIGO 500 ",
                     content = @Content) })
     @GetMapping("restorePassword")
-    public ResponseEntity<String> restorePassword(@RequestParam String email){
+    public ResponseEntity<String> restorePassword(@RequestParam @Email String email){
         return new ResponseEntity<>(authService.restorePassword(email), HttpStatus.ACCEPTED);
     }
     @Operation(summary = "This endpoint receives an RestorePassRequest as a JSON, SET NEW PASSWORD and returns a new JWT with user credentials")
@@ -98,7 +100,7 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "ESTE ERROR ESTA PENDIENTE DE DARLE OTRO MANEJO!!! NO ESTA BIEN EL CODIGO 500 ",
                     content = @Content) })
     @PostMapping(path = "setNewPassword") // AGREGAR PARA FORMS=> , consumes = "application/x-www-form-urlencoded")
-    public ResponseEntity<AuthResponse> setNewPassword(@NotNull RestorePassRequest restorePassRequest){
+    public ResponseEntity<AuthResponse> setNewPassword(@Valid RestorePassRequest restorePassRequest){
         return new ResponseEntity<>(authService.setNewPassword(restorePassRequest) , HttpStatus.ACCEPTED);
     }
 }

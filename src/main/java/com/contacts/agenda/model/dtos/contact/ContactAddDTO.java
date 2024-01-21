@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ContactAddDTO {
     // private Integer id;
-
     @NotNull(message = "Nombre no puede ser nulo")
     @Size(min=2, max=30, message = "Nombre debe tener entre 2 y 30 caracteres")
     private String name;

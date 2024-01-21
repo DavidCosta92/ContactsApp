@@ -36,8 +36,6 @@ public class RegisterTest {
 
     @Autowired
     UserRepository userRepository;
-    @Autowired
-    private MockMvc mockMvc;
 
     @Autowired
     TestRestTemplate restTemplate;

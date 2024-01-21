@@ -3,6 +3,7 @@ package com.contacts.agenda.model.mappers;
 import com.contacts.agenda.model.dtos.address.AddressAddDto;
 import com.contacts.agenda.model.dtos.address.AddressReadDTO;
 import com.contacts.agenda.model.entities.AddressEntity;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
 
 @Component
