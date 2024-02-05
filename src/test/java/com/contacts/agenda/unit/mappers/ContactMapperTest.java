@@ -25,7 +25,7 @@ public class ContactMapperTest {
     public void contactEntityToReadDTO() throws Exception {
         AddressEntity addressEntity = new AddressEntity(1, "Correa", "4747");
         ContactEntity contactEntity = new ContactEntity(1 ,"David", "2644647474", addressEntity);
-        ContactReadDTO contactReadDTO = contactMapper.contactEntityToReadDTO(contactEntity);
+        ContactReadDTO contactReadDTO = contactMapper.toReadDTO(contactEntity);
         assertThat(contactReadDTO.getId()).isEqualTo(contactEntity.getId());
         assertThat(contactReadDTO.getName()).isEqualTo(contactEntity.getName());
         assertThat(contactReadDTO.getPhone()).isEqualTo(contactEntity.getPhone());
@@ -39,7 +39,7 @@ public class ContactMapperTest {
         AddressEntity addressEntity = new AddressEntity(1, "Correa", "4747");
         ContactAddDTO contactAddDTO = new ContactAddDTO("David", "2644647474",addressEntity);
 
-        ContactEntity contactEntity = contactMapper.contactAddDTOToEntity(contactAddDTO);
+        ContactEntity contactEntity = contactMapper.toEntity(contactAddDTO);
         assertThat(contactEntity.getName()).isEqualTo(contactAddDTO.getName());
         assertThat(contactEntity.getPhone()).isEqualTo(contactAddDTO.getPhone());
         assertThat(contactEntity.getAddress().getNumber()).isEqualTo(contactAddDTO.getAddress().getNumber());

@@ -103,7 +103,7 @@ public class AddContactTest {
 
     public ContactAddDTO createContact(String name, String phone, String street, String number){
         AddressAddDto newAddress = new AddressAddDto(street, number);
-        return new ContactAddDTO(name , phone, addressMapper.addressAddDtoToEntity(newAddress));
+        return new ContactAddDTO(name , phone, addressMapper.toEntity(newAddress));
     }
     public HttpEntity<ContactAddDTO> gethttpEntityForPostContact (ContactAddDTO contact, String token){
         HttpHeaders headers = new HttpHeaders();

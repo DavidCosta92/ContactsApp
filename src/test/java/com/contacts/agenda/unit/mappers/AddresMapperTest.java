@@ -2,11 +2,8 @@ package com.contacts.agenda.unit.mappers;
 
 import com.contacts.agenda.model.dtos.address.AddressAddDto;
 import com.contacts.agenda.model.dtos.address.AddressReadDTO;
-import com.contacts.agenda.model.dtos.contact.ContactReadDTO;
 import com.contacts.agenda.model.entities.AddressEntity;
-import com.contacts.agenda.model.entities.ContactEntity;
 import com.contacts.agenda.model.mappers.AddressMapper;
-import com.contacts.agenda.model.mappers.ContactMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +22,7 @@ public class AddresMapperTest {
     @Test
     public void addressAddDtoToEntity() throws Exception {
         AddressAddDto addDto = new AddressAddDto("Correa", "4747");
-        AddressEntity entity = addressMapper.addressAddDtoToEntity(addDto);
+        AddressEntity entity = addressMapper.toEntity(addDto);
         assertThat(entity.getNumber()).isEqualTo(addDto.getNumber());
         assertThat(entity.getStreet()).isEqualTo(addDto.getStreet());
         assertThat(entity.getId()).isNull();
@@ -35,7 +32,7 @@ public class AddresMapperTest {
     @Test
     public void addressEntityToReadDto() throws Exception {
         AddressEntity entity = new AddressEntity(1,"Correa", "4747");
-        AddressReadDTO readDTO = addressMapper.addressEntityToReadDto(entity);
+        AddressReadDTO readDTO = addressMapper.toReadDto(entity);
         assertThat(readDTO.getNumber()).isEqualTo(entity.getNumber());
         assertThat(readDTO.getStreet()).isEqualTo(entity.getStreet());
         assertThat(readDTO.getId()).isEqualTo(entity.getId());
@@ -44,7 +41,7 @@ public class AddresMapperTest {
     @Test
     public void addressReadDtoToEntity() throws Exception {
         AddressReadDTO readDTO = new AddressReadDTO(1,"Correa", "4747");
-        AddressEntity entity = addressMapper.addressReadDtoToEntity(readDTO);
+        AddressEntity entity = addressMapper.toEntity(readDTO);
         assertThat(entity.getNumber()).isEqualTo(readDTO.getNumber());
         assertThat(entity.getStreet()).isEqualTo(readDTO.getStreet());
         assertThat(entity.getId()).isEqualTo(readDTO.getId());

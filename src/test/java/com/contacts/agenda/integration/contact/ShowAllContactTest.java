@@ -6,7 +6,6 @@ import com.contacts.agenda.model.dtos.address.AddressAddDto;
 import com.contacts.agenda.model.dtos.contact.ContactAddDTO;
 import com.contacts.agenda.model.dtos.contact.ContactArrayReadDTO;
 import com.contacts.agenda.model.dtos.contact.ContactReadDTO;
-import com.contacts.agenda.model.entities.AddressEntity;
 import com.contacts.agenda.model.mappers.AddressMapper;
 import com.contacts.agenda.model.mappers.ContactMapper;
 import com.contacts.agenda.services.ContactService;
@@ -110,7 +109,7 @@ public class ShowAllContactTest {
     }
     public ContactAddDTO createContact(String name, String phone, String street, String number){
         AddressAddDto newAddress = new AddressAddDto(street, number);
-        return new ContactAddDTO(name , phone, addressMapper.addressAddDtoToEntity(newAddress));
+        return new ContactAddDTO(name , phone, addressMapper.toEntity(newAddress));
     }
     public HttpEntity<ContactAddDTO> gethttpEntityForPostContact (ContactAddDTO contact, String token){
         HttpHeaders headers = new HttpHeaders();

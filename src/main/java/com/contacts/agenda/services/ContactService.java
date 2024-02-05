@@ -3,7 +3,6 @@ package com.contacts.agenda.services;
 import com.contacts.agenda.exceptions.customsExceptions.AlreadyExistException;
 import com.contacts.agenda.exceptions.customsExceptions.NotFoundException;
 import com.contacts.agenda.exceptions.customsExceptions.NotFoundInputException;
-import com.contacts.agenda.model.dtos.address.AddressAddDto;
 import com.contacts.agenda.model.dtos.contact.ContactAddDTO;
 import com.contacts.agenda.model.dtos.contact.ContactArrayReadDTO;
 import com.contacts.agenda.model.dtos.contact.ContactReadDTO;
@@ -53,7 +52,7 @@ public class ContactService {
         } else {
             results = contactRepository.findAll(pageable);
         }
-        Page pagedResults = results.map(entity -> contactMapper.contactEntityToReadDTO(entity));
+        Page pagedResults = results.map(entity -> contactMapper.toReadDTO(entity));
 
         return ContactArrayReadDTO.builder()
                 .contacts(pagedResults.getContent())
@@ -70,9 +69,9 @@ public class ContactService {
         contactAddDTO.setAddress(addressToSet);
         return Optional
                 .ofNullable(contactAddDTO)
-                .map(dto -> contactMapper.contactAddDTOToEntity(dto))
+                .map(dto -> contactMapper.toEntity(dto))
                 .map(entity -> contactRepository.save(entity))
-                .map(entity -> contactMapper.contactEntityToReadDTO(entity))
+                .map(entity -> contactMapper.toReadDTO(entity))
                 .orElse(new ContactReadDTO());
     }
     public ContactReadDTO findById(Integer contactId){
@@ -80,7 +79,7 @@ public class ContactService {
         if (contact.isEmpty()) {
             throw new NotFoundException("No se encontro contacto");
         }
-        return contactMapper.contactEntityToReadDTO(contact.get());
+        return contactMapper.toReadDTO(contact.get());
     }
     public ContactReadDTO updateById(Integer id, ContactUpdateDTO contactUpdateDTO){
         existsById(id);
@@ -110,7 +109,7 @@ public class ContactService {
             contactEntity.setAddress(newAddress);
             contactRepository.save(contactEntity);
         }
-        return contactMapper.contactEntityToReadDTO(contactEntity);
+        return contactMapper.toReadDTO(contactEntity);
     }
     public ContactReadDTO deleteById(Integer contactId){
         ContactReadDTO contactReadDTO = findById(contactId);
@@ -155,7 +154,7 @@ public class ContactService {
     }
 
     public ContactReadDTO findByNameAndPhone(String name , String phone){
-        return  contactMapper.contactEntityToReadDTO(contactRepository.findByNameAndPhone(name , phone));
+        return  contactMapper.toReadDTO(contactRepository.findByNameAndPhone(name , phone));
     }
 
 }

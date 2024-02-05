@@ -3,21 +3,29 @@ package com.contacts.agenda.model.mappers;
 import com.contacts.agenda.model.dtos.address.AddressAddDto;
 import com.contacts.agenda.model.dtos.address.AddressReadDTO;
 import com.contacts.agenda.model.entities.AddressEntity;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AddressMapper {
 
 
-    public AddressEntity addressAddDtoToEntity (AddressAddDto addDto){
+    public AddressEntity toEntity(AddressAddDto addDto){
         return AddressEntity
                 .builder()
                 .street(addDto.getStreet())
                 .number(addDto.getNumber())
                 .build();
     }
-    public AddressReadDTO addressEntityToReadDto (AddressEntity addEntity){
+    public AddressEntity toEntity (AddressReadDTO readEntity){
+        return AddressEntity
+                .builder()
+                .id(readEntity.getId())
+                .street(readEntity.getStreet())
+                .number(readEntity.getNumber())
+                .build();
+    }
+
+    public AddressReadDTO toReadDto(AddressEntity addEntity){
         return AddressReadDTO
                 .builder()
                 .id(addEntity.getId())
@@ -26,12 +34,4 @@ public class AddressMapper {
                 .build();
     }
 
-    public AddressEntity addressReadDtoToEntity (AddressReadDTO readEntity){
-        return AddressEntity
-                .builder()
-                .id(readEntity.getId())
-                .street(readEntity.getStreet())
-                .number(readEntity.getNumber())
-                .build();
-    }
 }

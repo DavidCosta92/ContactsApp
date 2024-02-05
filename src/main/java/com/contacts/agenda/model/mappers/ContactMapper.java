@@ -10,7 +10,7 @@ import java.util.Optional;
 @Component
 public class ContactMapper {
 
-    public ContactReadDTO contactEntityToReadDTO (ContactEntity entity){
+    public ContactReadDTO toReadDTO(ContactEntity entity){
         return Optional
                 .ofNullable(entity)
                 .map(entity1 -> ContactReadDTO
@@ -24,7 +24,7 @@ public class ContactMapper {
                 //.orElse(new ContactReadDTO());
     }
 
-    public ContactEntity contactAddDTOToEntity(ContactAddDTO dto) {
+    public ContactEntity toEntity(ContactAddDTO dto) {
         return ContactEntity.builder()
                             .name(dto.getName())
                             .phone(dto.getPhone())

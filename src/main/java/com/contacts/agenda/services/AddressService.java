@@ -1,6 +1,5 @@
 package com.contacts.agenda.services;
 
-import com.contacts.agenda.exceptions.customsExceptions.AlreadyExistException;
 import com.contacts.agenda.exceptions.customsExceptions.NotFoundException;
 import com.contacts.agenda.model.dtos.address.AddressAddDto;
 import com.contacts.agenda.model.dtos.address.AddressReadDTO;
@@ -38,9 +37,9 @@ public class AddressService {
         validateStreetNumber(addressAddDto.getNumber());
         return Optional
                 .ofNullable(addressAddDto)
-                .map(ent -> addressMapper.addressAddDtoToEntity(ent))
+                .map(ent -> addressMapper.toEntity(ent))
                 .map(ent -> addressRepository.save(ent))
-                .map(ent -> addressMapper.addressEntityToReadDto(ent))
+                .map(ent -> addressMapper.toReadDto(ent))
                 .orElse(new AddressReadDTO());
     }
 
@@ -59,7 +58,7 @@ public class AddressService {
             return getAddressEntityByStreetAndNumber(address.getStreet() , address.getNumber());
         } else {
             AddressReadDTO readDTO = add(new AddressAddDto(address.getStreet() , address.getNumber()));
-            return addressMapper.addressReadDtoToEntity(readDTO);
+            return addressMapper.toEntity(readDTO);
         }
     }
 }
